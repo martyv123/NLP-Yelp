@@ -10,8 +10,13 @@
 This is a minimal script that reads in the ten text review examples provided by Prof. Bart. The
 script will parse, lemmatize, and perform a term frequency (TF) analysis on the reviews
 provided in the sample.txt file. More specifically, it performs a TF-IDF analysis, which stands
-for Term Frequency (TF) - Inverse Document Frequency (IDF). As we continue to analyze larger
-data sets, modifications will be added to script as necessary.
+for Term Frequency (TF) - Inverse Document Frequency (IDF). We will then use the weighted values of
+the terms in the reviews to compare the similarity between reviews by using cosine similarity. As we 
+continue to analyze larger data sets, modifications will be added to script as necessary.
+
+The cosine similarity is the cosine of the angle between two vectors. In text analysis, each vector can
+represent a document (in our case a review). The greater the value of θ, the less the value of cos θ,
+thus the less the similarity between two document.
 
 
 # Current Implementation Details 
@@ -52,3 +57,5 @@ https://www.machinelearningplus.com/nlp/lemmatization-examples-python/
 https://towardsdatascience.com/tf-idf-for-document-ranking-from-scratch-in-python-on-real-world-dataset-796d339a4089
 
 https://stackabuse.com/python-for-nlp-creating-tf-idf-model-from-scratch/
+
+https://sites.temple.edu/tudsc/2017/03/30/measuring-similarity-between-texts-in-python/

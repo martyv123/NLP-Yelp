@@ -10,8 +10,10 @@
 
 import csv
 import json
+import string
 import nltk
 import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
@@ -185,12 +187,12 @@ def get_wordnet_pos(word):
 
 # Lemmatize the review sets
 def lemmatize(review_set):
-    # TODO: Consider punctuation: do we need this in our text frequency analysis?
     lemmatized_output = []
     for review in review_set:
-        # Tokenize the review into individual worlds
+        # Tokenize the review into individual words
         word_list = tokenizer.tokenize(review)
-        # TODO: Consider removing stopwords before lemmatizing?
+        # Remove punctuation
+        word_list = [word.lower() for word in word_list if word.isalpha()]
         # print(word_list)
         # print('\n')
         for index, word in enumerate(word_list):
@@ -202,6 +204,7 @@ def lemmatize(review_set):
                     # TODO: Not sure how to handle contractions with multiple meanings yet.
                     #       Will most likely need to consider the sentence that it resides in,
                     #       requiring a more in-depth processing. For now, raise an exception.
+                    print(contraction_string)
                     raise Exception("Error: Contraction has multiple derivations")
                 else:
                     contraction_words = contraction_string.split()
@@ -209,8 +212,6 @@ def lemmatize(review_set):
                     print('contraction words: ' + str(contraction_words))
                     for contraction_word in contraction_words:
                         word_list.insert(index, contraction_word)
-        # Lemmatize the tokenized words and add them into the lemmatized list
-        # lemmatized = ' '.join([lemmatizer.lemmatize(w) for w in word_list])
         lemmatized = [lemmatizer.lemmatize(w, get_wordnet_pos(w)) for w in word_list]
         lemmatized_output.append(lemmatized)
     # print(lemmatized_output)
@@ -227,7 +228,18 @@ if __name__ == '__main__':
     print("Lemmatizing review group 1 and group 2...")
     # Storing the output as a list of strings
     lemmatized_group_1 = lemmatize(REVIEW_SET_1)
+    print(lemmatized_group_1)
     lemmatized_group_2 = lemmatize(REVIEW_SET_2)
+    print(lemmatized_group_2)
 
-    # Analyzing for first set of reviews
+    # Analyzing reviews in set 1
+    # TODO: finish!
+
+    # Analyzing reviews in set 2
+    # TODO: finish!
+
+    # Performing cosine similarity for reviews in set 1
+    # TODO: finish!
+
+    # Performing cosine similarity for reviews in set 2
     # TODO: finish!
