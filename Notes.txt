@@ -1,0 +1,28 @@
+- NLP Project
+-- consumer product reviews
+-- understand which of the reviews are more or less similar to each other
+-- more confident people tend to write more reviews that differ from whats been written before
+-- consumers get badges for being expert reviews
+-- yelp experts -- quality of review determines yelp experts? not sure of criteria
+-- yelp publishes its data sets - see kaggle link
+-- designation of reviews written by yelp experts
+
+-- calculate similarities between texts
+-- topic modeling - frequency, similarities in dictionary of words
+
+
+https://www.kaggle.com/yelp-dataset/yelp-dataset
+https://medium.com/@adriensieg/text-similarities-da019229c894
+https://medium.com/analytics-vidhya/semantic-similarity-in-sentences-and-bert-e8d34f5a4677
+
+
+one idea is to look at similarity between elite yelper reviews and see how similar it is to
+the chronologically 5 previous reviews
+
+calculate how similar it is to the previous 5 reviews
+
+** all for the same restauraunt
+
+-- start with 100 reviews, 1 location (New York, 100 restaurants)
+
+the metric is: how similar is it to the previous 5 years, calculate for all reviews, does it differ for elite yelpers and everyone else?
