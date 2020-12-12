@@ -3,7 +3,7 @@
 
 #### Marty Vo
 #### vo.ma@northeastern.edu
-#### 12/12/2020
+#### Last updated: 12/12/2020
 
 <br>
 
@@ -29,24 +29,8 @@ lemmatized lists as to determine word frequency afterall.
 <br>
 
 # Research
-## Text Similarities: Estimate the degree of similarity between two texts
 
-https://medium.com/@adriensieg/text-similarities-da019229c894
-
-* What is text similarity?
-  * Determines how 'close' two pieces of text are in lexical similarity and semantic similarity
-    * Example: "the cat ate the mouse" and "the mouse ate the cat food"
-    * Lexically, the two phrases are very similar due to the words used
-    * Semantically, the two phrases are very different
-  * There is a dependency structure in any sentence:
-    * Differences in word order create a difference in meaning
-* What is our winning strategy?
-  * 
-
-<br>
-
-## Semantic Similarity in Sentences and BERT
-https://medium.com/analytics-vidhya/semantic-similarity-in-sentences-and-bert-e8d34f5a4677
+Research can be found in the RESEARCH.md file.
 
 <br>
 
