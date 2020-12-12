@@ -31,6 +31,7 @@ lemmatized lists as to determine word frequency afterall.
 # Research
 
 Research can be found in the RESEARCH.md file.
+https://github.com/martyv123/NLP-Yelp/blob/main/RESEARCH.MD 
 
 <br>
 
