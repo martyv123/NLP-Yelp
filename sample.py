@@ -11,6 +11,7 @@
 import csv
 import json
 import nltk
+import numpy as np
 nltk.download('wordnet')
 nltk.download('punkt')
 nltk.download('averaged_perceptron_tagger')
@@ -189,6 +190,7 @@ def lemmatize(review_set):
     for review in review_set:
         # Tokenize the review into individual worlds
         word_list = tokenizer.tokenize(review)
+        # TODO: Consider removing stopwords before lemmatizing?
         # print(word_list)
         # print('\n')
         for index, word in enumerate(word_list):
@@ -228,4 +230,4 @@ if __name__ == '__main__':
     lemmatized_group_2 = lemmatize(REVIEW_SET_2)
 
     # Analyzing for first set of reviews
-    
+    # TODO: finish!

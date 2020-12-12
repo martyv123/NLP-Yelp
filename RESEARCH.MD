@@ -46,4 +46,38 @@ https://medium.com/@adriensieg/text-similarities-da019229c894
 <br>
 
 ## Semantic Similarity in Sentences and BERT
+
 https://medium.com/analytics-vidhya/semantic-similarity-in-sentences-and-bert-e8d34f5a4677
+
+* Deep pre-trained language models such as BERT, ULMFIT, OPEN-GPT can offer a greater level of statistical accuracy
+  * These networks learn from hierarchical feature representations
+* How is this relevant to semantic similarity between sentences?
+  * Word2vec and GloVe use word embeddings to finish semantic similarity between words
+  * However, sentences are much more complex due to the amount of information they contain
+  * The most common method of estimating baseline semantic similarity is to:
+    * 1) Calculate an average of the word embeddings of all words in two sentences
+    * 2) Calculate the cosine distance between the resulting embeddings
+  * How can we improve upon this baseline?
+    * 1) Do not include stopwords in calculation
+    * 2) Compute the averages weighted by TF-IDF
+  * Are there better approaches that can improve a higher statisical accuracy?
+    * 1) Using techniques such as the Word Mover's Distance (WMD)
+    * 2) Using techniques such as the Smooth Inverse Frequency (SIF)
+  * What are the drawbacks of these current techniques?
+    * They do not take word order into account, since they are "bag-of-words" methods
+    * The word embeddings are learned in an "unsupervised" manner
+  * Pre-trained sentence encoders
+    * Trained on a range of supervised and unsupervised tasks
+      * Google's Universal Sentence Encoder (uses a DAN (Deep Averaging Network))
+    * There are also RNN (Recurrent Neural Network) based sequence models
+      * Used for number sequence, text sequence, frame sequences, etc.
+  * BERT uses Bi Directional Representations in Pre-trained representations
+    * Can be context-free or contextual
+      * "train" in a context-free representation has the same meaning in "goods train" and "train the model"
+      * Contextual models can better represent words by using both the previous and next context
+        * "we will train the model" - here train's representation is determined by "we will" and "model"
+  * Caveats
+    * Sentence similarity is harder to deduce than word similarity since there are much more factors
+      * Semantic similarity can have several dimensions
+      * Sentences can be similar in one way and differ in another
+    * For text where specific words significantly alter the over-all meaning in a text, word-based models like GloVe perform best
