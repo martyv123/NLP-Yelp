@@ -124,8 +124,10 @@ if __name__ == '__main__':
     # Multiply matrix by transpose to get final result
     cos_similarity_matrix_1 = (tfidf_matrix_1 * tfidf_matrix_1.T).toarray()
     cos_similarity_matrix_2 = (tfidf_matrix_2 * tfidf_matrix_2.T).toarray()
+    print("Review group 1\n")
     print(cos_similarity_matrix_1)
     print('\n')
+    print("Review group 2\n")
     print(cos_similarity_matrix_2)
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
