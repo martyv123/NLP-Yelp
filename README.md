@@ -16,7 +16,7 @@ continue to analyze larger data sets, modifications will be added to script as n
 
 The cosine similarity is the cosine of the angle between two vectors. In text analysis, each vector can
 represent a document (in our case a review). The greater the value of θ, the less the value of cos θ,
-thus the less the similarity between two document.
+thus the less the similarity between two documents.
 
 
 # Current Implementation Details 
