@@ -22,12 +22,12 @@ reviews. Punctuation was also removed from the lemmatized lists as it is not use
 the relevance of a term in a document. Parsing and lemmatization was handled by the nltk library
 which can be found [here](https://www.nltk.org/).
 
-The term frequency, inverse document frequency, cosine similarity, and all intermediate matrix transformations were calculated using scikit-learn's library. You can find more information about the calculations and methods [here](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.feature_extraction.text).
+The term frequency, inverse document frequency, cosine similarity, and all intermediate matrix 
+transformations were calculated using scikit-learn's library. You can find more information about the 
+calculations and methods [here](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.feature_extraction.text).
 
-The cosine similarity is the cosine of the angle between two vectors. In text analysis, each vector can
-represent a document (in our case a review). The closer that the value of cosine θ is to 1 is directly
-correlated to the similarity between the two documents. A value of 1 indicates that the documents are
-the exact same.
+This script will return the cosine similarity matrix of the reviews. The closer the value of cosine θ is to 1,
+the more similar the two reviews. A value of 1 indicates that the documents are identical.
 
 
 <br>
