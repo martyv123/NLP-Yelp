@@ -60,13 +60,19 @@ def parse_csv_file(file_name):
     with open(file_name) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
         line_count = 0
+        initial_review = ""
         for row in csv_reader:
-            if line_count < 5:
-                REVIEW_SET_1.append(' '.join(row))
+            if line_count == 0:
+                initial_review = row
                 line_count += 1
             else:
-                REVIEW_SET_2.append(' '.join(row))
-                line_count += 1
+                REVIEW_SET_1.append(' '.join(initial_review))
+                REVIEW_SET_1.append(' '.join(row))
+            # if line_count < 1:
+            #     REVIEW_SET_2.append(' '.join(row))
+            #     line_count += 1
+            # else:
+            #     REVIEW_SET_1.append(' '.join(row))
 
 
 # Map POS (Part of Speech) tag to first character lemmatize() accepts
@@ -101,69 +107,88 @@ if __name__ == '__main__':
     # parse_txt_file(file)
     parse_csv_file(file)
 
-    print(REVIEW_SET_1)
-    print('\n')
-    print(REVIEW_SET_2)
-    print('\n')
+    # print(REVIEW_SET_1)
+    # print('\n')
+    # print(REVIEW_SET_2)
+    # print('\n')
     
-    LemVectorizer_1 = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
-    LemVectorizer_2 = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
-    print("Transforming tokens into vectors of term frequency (TF)")
-    LemVectorizer_1.fit_transform(REVIEW_SET_1)
-    LemVectorizer_2.fit_transform(REVIEW_SET_2)
+    for id, review in enumerate(REVIEW_SET_1):
+        if id % 2 == 0:
+            to_review = []
+            to_review.append(REVIEW_SET_1[id])
+            to_review.append(REVIEW_SET_1[id + 1])
 
-    # The indexes of the terms in the vector
-    # print(LemVectorizer_1.vocabulary_)
-    # print(LemVectorizer_2.vocabulary_) 
+            for review in to_review:
+                print(review)
+                print('--------------------')
 
-    print('\n')
-    print("Convert vectors into TF matrices")
-    tf_matrix_1 = LemVectorizer_1.transform(REVIEW_SET_1).toarray()
-    tf_matrix_2 = LemVectorizer_2.transform(REVIEW_SET_2).toarray()
-    # print(tf_matrix_1)
-    # print(tf_matrix_2)
+            LemVectorizer_1 = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
+            # LemVectorizer_2 = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
+            print("Transforming tokens into vectors of term frequency (TF)")
+            LemVectorizer_1.fit_transform(to_review)
+            # LemVectorizer_2.fit_transform(REVIEW_SET_2)
 
-    # Confirm matrix shape (n x m) where n = reviews and m = terms
-    # print(tf_matrix_1.shape)
-    # print(tf_matrix_2.shape)
+            # The indexes of the terms in the vector
+            # print(LemVectorizer_1.vocabulary_)
+            # print(LemVectorizer_2.vocabulary_) 
 
-    print("Calculate inverse document frequency (IDF) matrices")
-    # Each vector's component is now the idf for each term
-    tfidfTran_1 = TfidfTransformer(norm="l2")
-    tfidfTran_2 = TfidfTransformer(norm="l2")
-    tfidfTran_1.fit(tf_matrix_1)
-    tfidfTran_2.fit(tf_matrix_2)
-    # print(tfidfTran_1.idf_)
-    # print(tfidfTran_2.idf_)
+            print('\n')
+            print("Convert vectors into TF matrices")
+            tf_matrix_1 = LemVectorizer_1.transform(to_review).toarray()
+            # tf_matrix_2 = LemVectorizer_2.transform(REVIEW_SET_2).toarray()
+            # print(tf_matrix_1)
+            # print(tf_matrix_2)
 
-    # Manually verify that the IDF is correct
-    # print("The idf for terms that appear in one document: " + str(idf(5,1)))
-    # print("The idf for terms that appear in two documents: " + str(idf(5,2)))
+            # Confirm matrix shape (n x m) where n = reviews and m = terms
+            # print(tf_matrix_1.shape)
+            # print(tf_matrix_2.shape)
 
-    print("Get the TF-IDF matrices")
-    # Transform method here multiples the tf matrix by the diagonal idf matrix
-    # The method then divides the tf-idf matrix by the Euclidean norm
-    tfidf_matrix_1 = tfidfTran_1.transform(tf_matrix_1)
-    tfidf_matrix_2 = tfidfTran_2.transform(tf_matrix_2)
-    # print(tfidf_matrix_1.toarray())
-    # print(tfidf_matrix_1.toarray())
+            print("Calculate inverse document frequency (IDF) matrices")
+            # Each vector's component is now the idf for each term
+            tfidfTran_1 = TfidfTransformer(norm="l2")
+            # tfidfTran_2 = TfidfTransformer(norm="l2")
+            tfidfTran_1.fit(tf_matrix_1)
+            # tfidfTran_2.fit(tf_matrix_2)
+            # print(tfidfTran_1.idf_)
+            # print(tfidfTran_2.idf_)
 
-    print("Get the cosine similarity matrices\n")
-    # Multiply matrix by transpose to get final result
-    cos_similarity_matrix_1 = (tfidf_matrix_1 * tfidf_matrix_1.T).toarray()
-    cos_similarity_matrix_2 = (tfidf_matrix_2 * tfidf_matrix_2.T).toarray()
-    print("Review group 1\n")
-    print(cos_similarity_matrix_1)
-    print('\n')
-    print("Review group 2\n")
-    print(cos_similarity_matrix_2)
+            # Manually verify that the IDF is correct
+            # print("The idf for terms that appear in one document: " + str(idf(2,1)))
+            # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
 
-    # Write to CSV file
-    group_1 = numpy.asarray(cos_similarity_matrix_1)
-    group_2 = numpy.asarray(cos_similarity_matrix_2)
+            print("Get the TF-IDF matrices")
+            # Transform method here multiples the tf matrix by the diagonal idf matrix
+            # The method then divides the tf-idf matrix by the Euclidean norm
+            tfidf_matrix_1 = tfidfTran_1.transform(tf_matrix_1)
+            # tfidf_matrix_2 = tfidfTran_2.transform(tf_matrix_2)
+            # print(tfidf_matrix_1.toarray())
+            # print(tfidf_matrix_1.toarray())
 
-    write_file = numpy.concatenate((group_1, group_2))
-    numpy.savetxt("hotel_negative_readers_calculations.csv", write_file, delimiter=",")        
+            print("Get the cosine similarity matrices\n")
+            # Multiply matrix by transpose to get final result
+            cos_similarity_matrix_1 = (tfidf_matrix_1 * tfidf_matrix_1.T).toarray()
+            # cos_similarity_matrix_2 = (tfidf_matrix_2 * tfidf_matrix_2.T).toarray()
+            # print("Review group 1\n")
+            print('Comparing review pair ' + str(id/2))
+            print(cos_similarity_matrix_1)
+            print('\n')
+            # print("Review group 2\n")
+            # print(cos_similarity_matrix_2)
+
+            # Write to CSV file
+            # group_1 = numpy.asarray(cos_similarity_matrix_1)
+            # group_2 = numpy.asarray(cos_similarity_matrix_2)
+
+            # write_file = numpy.concatenate((group_1, group_2))
+            # numpy.savetxt("la_linea_writers_calculations.csv", write_file, delimiter=",")        
+
+            with open('college_writers_calculations.csv', 'a') as csv_file:
+                csv_writer = csv.writer(csv_file, delimiter=',')
+                for id, vector in enumerate(cos_similarity_matrix_1):
+                    if id == 0:
+                        csv_writer.writerow(vector)
+
+            # break
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
     sys.exit(0)
