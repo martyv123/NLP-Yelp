@@ -10,7 +10,7 @@ import sys
 import math
 import string
 import nltk
-import numpy as np
+import numpy
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 nltk.download('wordnet')
@@ -28,12 +28,12 @@ wordnet = nltk.corpus.wordnet
 lemmatizer = nltk.stem.WordNetLemmatizer()
 
 
-# Open and read the sample.txt file reviews in each group (10 total, 5 in each group)
-def parse_sample():
+# Open and read the text file reviews in each group
+def parse_txt_file(file_name):
     global REVIEW_SET_1
     global REVIEW_SET_2
 
-    file = open('sample.txt')
+    file = open(file_name)
     all_reviews = file.readlines()
     for review in all_reviews:
         # Skipping new lines ('\n')
@@ -49,6 +49,25 @@ def parse_sample():
     # print(REVIEW_SET_2)
     
     file.close()
+
+# Open and read the csv file 
+def parse_csv_file(file_name):
+    global REVIEW_SET_1
+    global REVIEW_SET_2
+
+    ''' Make sure CSVs are saved in MS-DOS format to avoid weird string conversions from utf-8 '''
+
+    with open(file_name) as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count < 5:
+                REVIEW_SET_1.append(' '.join(row))
+                line_count += 1
+            else:
+                REVIEW_SET_2.append(' '.join(row))
+                line_count += 1
+
 
 # Map POS (Part of Speech) tag to first character lemmatize() accepts
 def get_wordnet_pos(word):
@@ -77,8 +96,15 @@ def idf(n, df):
 if __name__ == '__main__':
     print('-----------------------------------')
     print("Starting sample analysis script...")
-    print("Parsing sample text file")
-    parse_sample()
+    file = sys.argv[1]
+    print("Parsing sample file " + str(file))
+    # parse_txt_file(file)
+    parse_csv_file(file)
+
+    print(REVIEW_SET_1)
+    print('\n')
+    print(REVIEW_SET_2)
+    print('\n')
     
     LemVectorizer_1 = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
     LemVectorizer_2 = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
@@ -87,8 +113,10 @@ if __name__ == '__main__':
     LemVectorizer_2.fit_transform(REVIEW_SET_2)
 
     # The indexes of the terms in the vector
-    # print(LemVectorizer.vocabulary_)
+    # print(LemVectorizer_1.vocabulary_)
+    # print(LemVectorizer_2.vocabulary_) 
 
+    print('\n')
     print("Convert vectors into TF matrices")
     tf_matrix_1 = LemVectorizer_1.transform(REVIEW_SET_1).toarray()
     tf_matrix_2 = LemVectorizer_2.transform(REVIEW_SET_2).toarray()
@@ -129,6 +157,13 @@ if __name__ == '__main__':
     print('\n')
     print("Review group 2\n")
     print(cos_similarity_matrix_2)
+
+    # Write to CSV file
+    group_1 = numpy.asarray(cos_similarity_matrix_1)
+    group_2 = numpy.asarray(cos_similarity_matrix_2)
+
+    write_file = numpy.concatenate((group_1, group_2))
+    numpy.savetxt("hotel_negative_readers_calculations.csv", write_file, delimiter=",")        
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
     sys.exit(0)
