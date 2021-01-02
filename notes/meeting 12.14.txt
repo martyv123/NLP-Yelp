@@ -28,3 +28,7 @@ Task 2:
 Task 3:
 - Reviewing xx documents against one single other document
 	- 1 column, one value for its similarity to the main review
+
+Questions:
+1) How to use cosine similarity values?
+2) Can we multiply the values by 100 to make them easier to work with?
