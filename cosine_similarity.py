@@ -235,63 +235,6 @@ if __name__ == '__main__':
     # print('Businesses with more than 10 reviews: ' + str(len(businesses_with_more_than_10_reviews)))  
     # print('Businesses with reviews from at least one 2018 Yelp Elite in 2018: ' + str(len(businesses_2018)))  
 
-    ####################### CONVERTING JSON TO CSV #######################       
-
-    # print('Writing business CSVs')
-    # with open('yelp_data/yelp_academic_dataset_business.json', encoding='utf-8', mode='r') as fin:
-    #     first = fin.readlines(1)
-    #     business_keys = json.loads(first[0]).keys()
-    #     with open('yelp_business.csv', encoding='utf-8', mode='w') as fout:
-    #         writer = csv.DictWriter(fout, business_keys)
-    #         writer.writeheader()
-    #         for line in fin:
-    #             serialized_line = json.loads(line)
-    #             writer.writerow(serialized_line)
-
-    # print('Writing users CSVs')
-    # with open('yelp_data/yelp_academic_dataset_user.json', encoding='utf-8', mode='r') as fin:
-    #     first = fin.readlines(1)
-    #     user_keys = json.loads(first[0]).keys()
-    #     with open('yelp_user.csv', encoding='utf-8', mode='w') as fout:
-    #         writer = csv.DictWriter(fout, user_keys)
-    #         writer.writeheader()
-    #         for line in fin:
-    #             serialized_line = json.loads(line)
-    #             writer.writerow(serialized_line)
-
-    # print('Writing reviews CSVs')
-    # with open('yelp_data/yelp_academic_dataset_review.json', encoding='utf-8', mode='r') as fin:
-    #     first = fin.readlines(1)
-    #     review_keys = json.loads(first[0]).keys()
-    #     with open('yelp_review.csv', encoding='utf-8', mode='w') as fout:
-    #         writer = csv.DictWriter(fout, review_keys)
-    #         writer.writeheader()
-    #         for line in fin:
-    #             serialized_line = json.loads(line)
-    #             writer.writerow(serialized_line)
-
-    # print('Writing checkin CSVs')
-    # with open('yelp_data/yelp_academic_dataset_checkin.json', encoding='utf-8', mode='r') as fin:
-    #     first = fin.readlines(1)
-    #     checkin_keys = json.loads(first[0]).keys()
-    #     with open('yelp_checkin.csv', encoding='utf-8', mode='w') as fout:
-    #         writer = csv.DictWriter(fout, checkin_keys)
-    #         writer.writeheader()
-    #         for line in fin:
-    #             serialized_line = json.loads(line)
-    #             writer.writerow(serialized_line)
-
-    # print('Writing tip CSVs')
-    # with open('yelp_data/yelp_academic_dataset_tip.json', encoding='utf-8', mode='r') as fin:
-    #     first = fin.readlines(1)
-    #     tip_keys = json.loads(first[0]).keys()
-    #     with open('yelp_tip.csv', encoding='utf-8', mode='w') as fout:
-    #         writer = csv.DictWriter(fout, tip_keys)
-    #         writer.writeheader()
-    #         for line in fin:
-    #             serialized_line = json.loads(line)
-    #             writer.writerow(serialized_line)
-
 
     ####################### PARSING AND SET-UP #######################
     print('-----------------------------------')
