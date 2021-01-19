@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 #
-# Sample parsing, lemmatization, TF analysis, and cosine similarity on 2 review groups (10 reviews total)
+# Sample parsing, lemmatization, TF analysis, and cosine similarity on multiple review groups.
 #
 # Maintainers: vo.ma@northeastern.edu
 
