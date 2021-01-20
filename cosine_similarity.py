@@ -368,7 +368,7 @@ if __name__ == '__main__':
         # print(sorted_review_set)
         # print(review_texts)
 
-        print('\n-----')
+        print('----------')
         # Similarity calculations 
         for i in range(len(review_texts)):
             # Not comparing very first review, break after writing
@@ -439,6 +439,7 @@ if __name__ == '__main__':
                 if i == 0:
                     writer.writeheader()
                 writer.writerow(full_review_data)
+        print('\n')
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
     sys.exit(0)    
