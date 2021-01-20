@@ -238,10 +238,10 @@ if __name__ == '__main__':
 
     ####################### PARSING AND SET-UP #######################
     print('-----------------------------------')
-    print("Starting sample analysis script...")
-    file = sys.argv[1]
-    business_id = sys.argv[2]
-    print("Parsing sample file " + str(file))
+    print("Starting analysis script...")
+    # file = sys.argv[1]
+    # business_id = sys.argv[2]
+    # print("Parsing sample file " + str(file))
     # parse_txt_file(file)
     # parse_csv_file(file)
 
@@ -259,81 +259,44 @@ if __name__ == '__main__':
     businesses = []
     businesses_review_count = []
 
-    # Get initial 100 businesses to work on
-    print('\nGetting businesses to work with')
-    with open('2018_elite_businesses.csv', mode='r') as input:
+    # Getting businesses to work on
+    print('\nGetting businesses to work on')
+    with open('pittsburgh_businesses.csv', mode='r', encoding='utf-8') as input:
         counter = 0
         for row in input:
-            if counter == 250:
-                break
-            businesses.append(row.split(',')[0])
-            businesses_review_count.append({'business_id': row.split(',')[0], 'reviews': 0})
-            counter += 1
-    # Last parsed: 1-100
-    businesses = businesses[100:]
+            # skipping header row
+            if counter == 0:
+                counter +=1
+            else:
+                businesses.append(row.split(',')[0])
+                businesses_review_count.append({'business_id': row.split(',')[0], 'reviews': 0})
+                counter += 1
 
-    print('Starting with ' + str(len(businesses)))
-
-    # Stripping businesses with more than 40 reviews
-    print('Stripping businesses with more than 50 reviews')
-    temp = []
-    with open('yelp_data/yelp_academic_dataset_business.json', mode='r', encoding='utf-8') as input:
-        for row in input:
-            data = json.loads(row)
-            for business in businesses:
-                if data['business_id'] == business:
-                    if data['review_count'] <= 50:
-                        temp.append(business)
-    print('Now left with ' + str(len(temp)))
-
-    # TODO: fix how I do this
-    print('Assigning final businesses')
-    final = []
-    for item in temp:
-        for business in businesses:
-            if item == business:
-                final.append(item)
-
-    print('Proceding with ' + str(len(final)))
-
-    businesses = final.copy()
-
-    # Writing business data to file
-    # print('\nWriting ' + str(len(businesses)) + ' businesses data to file')
-    # for business in businesses:
-    #     with open('yelp_data/yelp_academic_dataset_business.json', 'r', encoding='utf-8') as input:
-    #         counter = 0
-    #         for row in input:
-    #             data = json.loads(row)
-    #             keys = data.keys()
-    #             if data['business_id'] == business:
-    #                 with open('120_businesses_50_reviews.csv', 'a', encoding='utf-8') as file:
-    #                     writer = csv.DictWriter(file, keys)
-    #                     if counter == 0:
-    #                         writer.writeheader()
-    #                     writer.writerow(data)
-    #                     counter += 1
-
-    # Working on 100 businesses now
+    # Working on businesses now
     print('Starting calculations')
     for i in range(len(businesses)):
-        print('There are ' + str(len(businesses) - i) + ' left to parse through')
+        print('There are ' + str(len(businesses) - i) + ' businesses left to parse through')
         current_business = businesses[i]
         REVIEW_SET = []
 
         # Getting reviews for current business
         print('\nGetting reviews for current business #' + str(i))
-        with open('yelp_data/yelp_academic_dataset_review.json', mode='r', encoding='utf-8') as input:
-            for row in input:
-                data = json.loads(row)
-                if data['business_id'] == current_business:
-                    data['elite'] = False
-                    REVIEW_SET.append(data)
+        with open('pittsburgh_reviews.csv', mode='r', encoding='utf-8') as input:
+            csv_reader = csv.DictReader(input)
+            counter = 0
+            for row in csv_reader:
+                if counter == 0:
+                    counter += 1
+                else:
+                    if row['business_id'] == current_business:
+                        row['elite'] = False
+                        REVIEW_SET.append(row)
+                    counter += 1
 
         num_reviews = len(REVIEW_SET)
 
         # Get actual review count for businesses
-        print('Getting actual review count for businesses')
+        print('Getting actual review count for this businesses')
         for business in businesses_review_count:
             if business['business_id'] == current_business:
                 business['reviews'] = num_reviews
@@ -341,22 +304,33 @@ if __name__ == '__main__':
 
         # Write review count to file
         print('Writing review counts to file')
-        with open('72_businesses_50_words_review_count.csv', mode='a', encoding='utf-8') as to_write:
+        with open('pittsburgh_businesses_review_count.csv', mode='a', encoding='utf-8', newline='') as to_write:
             headers = ['business_id', 'reviews']
             writer = csv.DictWriter(to_write, headers)
             for business in businesses_review_count:
                 if business['business_id'] == current_business:
                     writer.writerow(business)
 
-        # Checking for elite status in reviews
-        print('\nGetting Yelp Elite status for users of reviews')
-        with open('yelp_data/yelp_academic_dataset_user.json', mode='r', encoding='utf-8') as input:
-            counter = 0
+        # Comparing review counts
+        print('\nComparing review counts')
+        with open('yelp_data/yelp_academic_dataset_business.json', mode='r', encoding='utf-8') as input:
             for row in input:
-                # This is the input file information
                 data = json.loads(row)
-                user = data['user_id']
-                elite_years = data['elite'].split(',')
+                if data['business_id'] == current_business:
+                    print('yelp says ' + str(data['review_count']) + ' reviews ')
+                    print('I found ' + str(len(REVIEW_SET)) + ' reviews')
+
+        # Checking for elite status in reviews
+        csv.field_size_limit(2147483647) # note: this may or may not cause issues...
+        print('\nGetting Yelp Elite status for users of reviews')
+        with open('pittsburgh_users.csv', mode='r', encoding='utf-8') as input:
+            counter = 0
+            elites = 0
+            csv_reader = csv.DictReader(input)
+            for row in csv_reader:
+                # This is the input file information
+                user = row['user_id']
+                elite_years = row['elite'].split(',')
                 for i, review in enumerate(REVIEW_SET):
                     # This is the review information
                     review_user = review['user_id']
@@ -374,34 +348,34 @@ if __name__ == '__main__':
                                 if review_year == int(year):
                                     # print('found an elite!')
                                     REVIEW_SET[i]['elite'] = True
+                                    elites += 1
 
-        # Verifying that the business review counts match
-        print('\nVerifying review count')
-        with open('yelp_data/yelp_academic_dataset_business.json', mode='r', encoding='utf-8') as input:
-            for row in input:
-                data = json.loads(row)
-                if data['business_id'] == current_business:
-                    print('yelp says ' + str(data['review_count']) + ' reviews ')
-                    print('I found ' + str(len(REVIEW_SET)) + ' reviews\n')
+        print('There are ' + (str(elites)) + ' Yelp Elites in this set of reviews')
 
         # Sort review set by date
-        sorted_review_set = sorted(REVIEW_SET, key=lambda k: k['date'], reverse=True)
+        REVIEW_SET = sorted(REVIEW_SET, key=lambda k: k['date'], reverse=True)
+
+        # Number the reviews and get word count
+        for index, review in enumerate(REVIEW_SET):
+            review['chronological_index'] = len(REVIEW_SET) - index
+            review['word_count'] = len(review['text'].split())
 
         # Getting just the text from the review set
         review_texts = []
-        for review in sorted_review_set:
+        for review in REVIEW_SET:
             review_texts.append(review['text'])
 
         # print(sorted_review_set)
         # print(review_texts)
 
+        print('\n-----')
         # Similarity calculations 
         for i in range(len(review_texts)):
-            # Not comparing very first review, break out of loop
+            # Not comparing very first review, break after writing
             if i == len(review_texts) - 1:
-                full_review_data = sorted_review_set[i]
+                full_review_data = REVIEW_SET[i]
                 full_review_data['average'] = 1
-                with open ('72_businesses_50_words_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+                with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
                     writer = csv.DictWriter(file, full_review_data.keys())
                     writer.writerow(full_review_data)
                 break
@@ -450,16 +424,17 @@ if __name__ == '__main__':
             first_column = first_column[1:]
             similarity_average = sum(first_column) / len(first_column)
             # print(first_column)
-            print('\n' + str(sorted_review_set[i]['review_id']) + ': ' + str(similarity_average))
+            print('\n' + str(REVIEW_SET[i]['review_id']) + ': ' + str(similarity_average))
             # print('Number of reviews ' + str(sorted_review_set[i]['review_id']) + ' compared to: ' + str(len(current_set)))
             # print('\n')
 
             # Write to CSV file
             # write_file = numpy.asarray(cos_similarity_matrix)
-            # numpy.savetxt("100_businesses.csv", write_file, delimiter=",") 
-            full_review_data = sorted_review_set[i]
+            # numpy.savetxt("100_businesses.csv", write_file, delimiter=",")
+             
+            full_review_data = REVIEW_SET[i]
             full_review_data['average'] = similarity_average
-            with open ('72_businesses_50_words_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+            with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
                 writer = csv.DictWriter(file, full_review_data.keys())
                 if i == 0:
                     writer.writeheader()
