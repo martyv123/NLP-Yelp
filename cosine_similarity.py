@@ -781,7 +781,7 @@ if __name__ == '__main__':
             for i in range(10):
                 b_score = "score_" + str(i+1) + "b"
                 b_review = "reviewed_against_" + str(i+1) + "b"
-
+                
                 f[b_review] = final_output_b[id][b_review]
                 f[b_score] = final_output_b[id][b_score]
 
