@@ -3,6 +3,12 @@ yelp_data/
 yelp_csv/
 2018_reviews.csv
 yelp.db
+subset_calculations/
+pittsburgh_businesses.csv
+pittsburgh_businesses_review_count.csv
+pittsburgh_businesses_similarities.csv
+pittsburgh_reviews.csv
+pittsburgh_users.csv
 =======
 yelp_data/
 >>>>>>> e3856b0ce2a4924b0f7bcc1e29ca1a2de46372c1

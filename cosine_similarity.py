@@ -11,6 +11,7 @@ import math
 import string
 import nltk
 import numpy
+import copy
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -114,6 +115,392 @@ def idf(n, df):
     result = math.log((n+1.0)/(df+1.0)) + 1
     return result
 
+# a. Similarity score with the most recently posted review (relative to the focal review), 
+#    2nd most recent posted review,…10th most recent posted review.
+#    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
+def calculate_method_a(review_set):
+    print('Now calculating method a...')
+    final_output = []
+
+    for index, review in enumerate(review_set):
+
+        # Get 1 focal review + 10 prior reviews
+        current_set = review_set[index:(index + 11)]
+
+        # Get just the texts from the current set
+        texts = []
+        for item in current_set:
+            texts.append(item['text'])
+
+        # Output 1 for similarity scores when less than 10 prior reviews
+        if len(current_set) != 11:
+            for item in current_set:
+                # Assign the review IDs compared against
+                item['reviewed_against_1a'] = "none"
+                item['reviewed_against_2a'] = "none"
+                item['reviewed_against_3a'] = "none"
+                item['reviewed_against_4a'] = "none"
+                item['reviewed_against_5a'] = "none"
+                item['reviewed_against_6a'] = "none"
+                item['reviewed_against_7a'] = "none"
+                item['reviewed_against_8a'] = "none"
+                item['reviewed_against_9a'] = "none"
+                item['reviewed_against_10a'] = "none"
+
+                # Assign the similarity scores
+                item['score_1a'] = 1
+                item['score_2a'] = 1
+                item['score_3a'] = 1
+                item['score_4a'] = 1
+                item['score_5a'] = 1
+                item['score_6a'] = 1
+                item['score_7a'] = 1
+                item['score_8a'] = 1
+                item['score_9a'] = 1
+                item['score_10a'] = 1
+
+                final_output.append(item)
+
+            # print('**Less than 10 prior reviews - finishing at review ' + str(review['review_id']))
+            break
+        else:
+            LemVectorizer = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
+            # print("Transforming tokens into vectors of term frequency (TF)")
+            LemVectorizer.fit_transform(texts)
+
+            # print('\nThe indexes of the terms in the vector')
+            # print(sorted(LemVectorizer.vocabulary_.items()))
+
+            # print("\nConverting vectors into TF matrices")
+            tf_matrix = LemVectorizer.transform(texts).toarray()
+            # print(tf_matrix)
+
+            # Confirm matrix shape (n x m) where n = reviews and m = terms
+            # print(tf_matrix_1.shape)
+            # print(tf_matrix_2.shape)
+
+            # print("\nCalculating inverse document frequency (IDF) matrices")
+            # Each vector's component is now the idf for each term
+            tfidfTran = TfidfTransformer(norm="l2")
+            tfidfTran.fit(tf_matrix)
+            # print(len(tfidfTran.idf_))
+            # print(tfidfTran.idf_)
+
+            # Manually verify that the IDF is correct
+            # print("The idf for terms that appear in one document: " + str(idf(2,1)))
+            # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
+
+            # print("\nCreating the TF-IDF matrices")
+            # Transform method here multiples the tf matrix by the diagonal idf matrix
+            # The method then divides the tf-idf matrix by the Euclidean norm
+            tfidf_matrix = tfidfTran.transform(tf_matrix)
+            # print(tfidf_matrix.toarray())
+
+            # print("\nCreating the cosine similarity matrices")
+            # Multiply matrix by transpose to get final result
+            cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
+            # print(cos_similarity_matrix)
+
+            # Getting first column of similarity matrix - should be ten scores after stripping the first score
+            first_column = cos_similarity_matrix[0]
+            scores = first_column[1:]
+
+            current = current_set[1:]
+
+            # Assign the review IDs compared against
+            review['reviewed_against_1a'] = current[0]['review_id']
+            review['reviewed_against_2a'] = current[1]['review_id']
+            review['reviewed_against_3a'] = current[2]['review_id']
+            review['reviewed_against_4a'] = current[3]['review_id']
+            review['reviewed_against_5a'] = current[4]['review_id']
+            review['reviewed_against_6a'] = current[5]['review_id']
+            review['reviewed_against_7a'] = current[6]['review_id']
+            review['reviewed_against_8a'] = current[7]['review_id']
+            review['reviewed_against_9a'] = current[8]['review_id']
+            review['reviewed_against_10a'] = current[9]['review_id']
+
+            # Assign the similarity scores
+            review['score_1a'] = scores[0]
+            review['score_2a'] = scores[1]
+            review['score_3a'] = scores[2]
+            review['score_4a'] = scores[3]
+            review['score_5a'] = scores[4]
+            review['score_6a'] = scores[5]
+            review['score_7a'] = scores[6]
+            review['score_8a'] = scores[7]
+            review['score_9a'] = scores[8]
+            review['score_10a'] = scores[9]
+
+            # print('Assigning similarity scores (method a) for review ' + review['review_id'])
+
+            final_output.append(review)
+
+    return final_output
+
+# b. Similarity score with the most recently posted review (relative to the focal review) of the same valence as the focal review, 
+#    2nd most recent posted review of the same valence as the focal review,
+#    …10th most recent posted review of the same valence as the focal review.
+#    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
+def calculate_method_b(review_set):
+    print('Now calculating method b...')
+    final_output = []
+
+    for review in review_set:
+
+        current_set = []
+        current_set.append(review)
+
+        # Get 1 focal review + 10 prior reviews with same number of stars
+        for r in review_set:
+            if review['stars'] == r['stars'] and review['review_id'] != r['review_id'] and review['date'] > r['date']:
+                current_set.append(r)
+            if len(current_set) == 11:
+                break
+
+        # Get just the texts from the current set
+        texts = []
+        for item in current_set:
+            texts.append(item['text'])
+
+        # Output 1 for similarity scores when less than 10 prior reviews
+        if len(current_set) != 11:
+            item = current_set[0]
+
+            # Assign the review IDs compared against
+            item['reviewed_against_1b'] = "none"
+            item['reviewed_against_2b'] = "none"
+            item['reviewed_against_3b'] = "none"
+            item['reviewed_against_4b'] = "none"
+            item['reviewed_against_5b'] = "none"
+            item['reviewed_against_6b'] = "none"
+            item['reviewed_against_7b'] = "none"
+            item['reviewed_against_8b'] = "none"
+            item['reviewed_against_9b'] = "none"
+            item['reviewed_against_10b'] = "none"
+
+            # Assign the similarity scores
+            item['score_1b'] = 1
+            item['score_2b'] = 1
+            item['score_3b'] = 1
+            item['score_4b'] = 1
+            item['score_5b'] = 1
+            item['score_6b'] = 1
+            item['score_7b'] = 1
+            item['score_8b'] = 1
+            item['score_9b'] = 1
+            item['score_10b'] = 1
+
+            final_output.append(item)
+
+            # print('**Less than 10 prior reviews with same valence for review ' + str(review['review_id']))
+        else:
+            LemVectorizer = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
+            # print("Transforming tokens into vectors of term frequency (TF)")
+            LemVectorizer.fit_transform(texts)
+
+            # print('\nThe indexes of the terms in the vector')
+            # print(sorted(LemVectorizer.vocabulary_.items()))
+
+            # print("\nConverting vectors into TF matrices")
+            tf_matrix = LemVectorizer.transform(texts).toarray()
+            # print(tf_matrix)
+
+            # Confirm matrix shape (n x m) where n = reviews and m = terms
+            # print(tf_matrix_1.shape)
+            # print(tf_matrix_2.shape)
+
+            # print("\nCalculating inverse document frequency (IDF) matrices")
+            # Each vector's component is now the idf for each term
+            tfidfTran = TfidfTransformer(norm="l2")
+            tfidfTran.fit(tf_matrix)
+            # print(len(tfidfTran.idf_))
+            # print(tfidfTran.idf_)
+
+            # Manually verify that the IDF is correct
+            # print("The idf for terms that appear in one document: " + str(idf(2,1)))
+            # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
+
+            # print("\nCreating the TF-IDF matrices")
+            # Transform method here multiples the tf matrix by the diagonal idf matrix
+            # The method then divides the tf-idf matrix by the Euclidean norm
+            tfidf_matrix = tfidfTran.transform(tf_matrix)
+            # print(tfidf_matrix.toarray())
+
+            # print("\nCreating the cosine similarity matrices")
+            # Multiply matrix by transpose to get final result
+            cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
+            # print(cos_similarity_matrix)
+
+            # Getting first column of similarity matrix - should be ten scores after stripping the first score
+            first_column = cos_similarity_matrix[0]
+            scores = first_column[1:]
+            
+            # Write to CSV file
+
+            current = current_set[1:]
+
+            # Assign the review IDs compared against
+            review['reviewed_against_1b'] = current[0]['review_id']
+            review['reviewed_against_2b'] = current[1]['review_id']
+            review['reviewed_against_3b'] = current[2]['review_id']
+            review['reviewed_against_4b'] = current[3]['review_id']
+            review['reviewed_against_5b'] = current[4]['review_id']
+            review['reviewed_against_6b'] = current[5]['review_id']
+            review['reviewed_against_7b'] = current[6]['review_id']
+            review['reviewed_against_8b'] = current[7]['review_id']
+            review['reviewed_against_9b'] = current[8]['review_id']
+            review['reviewed_against_10b'] = current[9]['review_id']
+
+            # Assign the similarity scores
+            review['score_1b'] = scores[0]
+            review['score_2b'] = scores[1]
+            review['score_3b'] = scores[2]
+            review['score_4b'] = scores[3]
+            review['score_5b'] = scores[4]
+            review['score_6b'] = scores[5]
+            review['score_7b'] = scores[6]
+            review['score_8b'] = scores[7]
+            review['score_9b'] = scores[8]
+            review['score_10b'] = scores[9]
+
+            # print('Assigning similarity scores (method b) for review ' + review['review_id'])
+
+            final_output.append(review)
+    
+    return final_output
+
+# c. For each prior review, calculate the total of “useful”, “funny” and “cool” count, 
+#    and select 10 reviews with the highest counts (1, 2, 3…10). For reviews with the same count, use recency to determine the order 
+#    (e.g., if two prior reviews have the same max count, the review out of these two that is more recent 
+#    (relative to the focal review) should be “1”, and the other is “2”, for setting the order). 
+#    Once you’ve ordered all prior reviews by that rule, record similarity scores with review 1, 2, 3…10.
+#    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
+def calculate_method_c(review_set):
+    print('Now calculating method c...')
+    final_output = []
+    review_set_by_ufc = sorted(review_set, key = lambda x: x['total_ufc'], reverse=True)
+
+    for review in review_set:
+
+        current_set = []
+        current_set.append(review)
+
+        # Get 1 focal review + 10 prior reviews with highest number of "useful", "funny", and "cool" counts
+        for r in review_set_by_ufc:
+            if review['date'] > r['date'] and review['review_id'] != r['review_id']:
+                current_set.append(r)
+            if len(current_set) == 11:
+                break
+
+        # Get just the texts from the current set
+        texts = []
+        for item in current_set:
+            texts.append(item['text'])
+
+        # Output 1 for similarity scores when less than 10 prior reviews
+        if len(current_set) != 11:
+            for item in current_set:
+                # Assign the review IDs compared against
+                item['reviewed_against_1c'] = "none"
+                item['reviewed_against_2c'] = "none"
+                item['reviewed_against_3c'] = "none"
+                item['reviewed_against_4c'] = "none"
+                item['reviewed_against_5c'] = "none"
+                item['reviewed_against_6c'] = "none"
+                item['reviewed_against_7c'] = "none"
+                item['reviewed_against_8c'] = "none"
+                item['reviewed_against_9c'] = "none"
+                item['reviewed_against_10c'] = "none"
+
+                # Assign the similarity scores
+                item['score_1c'] = 1
+                item['score_2c'] = 1
+                item['score_3c'] = 1
+                item['score_4c'] = 1
+                item['score_5c'] = 1
+                item['score_6c'] = 1
+                item['score_7c'] = 1
+                item['score_8c'] = 1
+                item['score_9c'] = 1
+                item['score_10c'] = 1
+
+                final_output.append(item)
+
+            # print('**Less than 10 prior reviews with highest ufc count - finishing at review ' + str(review['review_id']))
+            break
+        else:
+            LemVectorizer = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
+            # print("Transforming tokens into vectors of term frequency (TF)")
+            LemVectorizer.fit_transform(texts)
+
+            # print('\nThe indexes of the terms in the vector')
+            # print(sorted(LemVectorizer.vocabulary_.items()))
+
+            # print("\nConverting vectors into TF matrices")
+            tf_matrix = LemVectorizer.transform(texts).toarray()
+            # print(tf_matrix)
+
+            # Confirm matrix shape (n x m) where n = reviews and m = terms
+            # print(tf_matrix_1.shape)
+            # print(tf_matrix_2.shape)
+
+            # print("\nCalculating inverse document frequency (IDF) matrices")
+            # Each vector's component is now the idf for each term
+            tfidfTran = TfidfTransformer(norm="l2")
+            tfidfTran.fit(tf_matrix)
+            # print(len(tfidfTran.idf_))
+            # print(tfidfTran.idf_)
+
+            # Manually verify that the IDF is correct
+            # print("The idf for terms that appear in one document: " + str(idf(2,1)))
+            # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
+
+            # print("\nCreating the TF-IDF matrices")
+            # Transform method here multiples the tf matrix by the diagonal idf matrix
+            # The method then divides the tf-idf matrix by the Euclidean norm
+            tfidf_matrix = tfidfTran.transform(tf_matrix)
+            # print(tfidf_matrix.toarray())
+
+            # print("\nCreating the cosine similarity matrices")
+            # Multiply matrix by transpose to get final result
+            cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
+            # print(cos_similarity_matrix)
+
+            # Getting first column of similarity matrix - should be ten scores after stripping the first score
+            first_column = cos_similarity_matrix[0]
+            scores = first_column[1:]
+
+            current = current_set[1:]
+
+            # Assign the review IDs compared against
+            review['reviewed_against_1c'] = current[0]['review_id']
+            review['reviewed_against_2c'] = current[1]['review_id']
+            review['reviewed_against_3c'] = current[2]['review_id']
+            review['reviewed_against_4c'] = current[3]['review_id']
+            review['reviewed_against_5c'] = current[4]['review_id']
+            review['reviewed_against_6c'] = current[5]['review_id']
+            review['reviewed_against_7c'] = current[6]['review_id']
+            review['reviewed_against_8c'] = current[7]['review_id']
+            review['reviewed_against_9c'] = current[8]['review_id']
+            review['reviewed_against_10c'] = current[9]['review_id']
+
+            # Assign the similarity scores
+            review['score_1c'] = scores[0]
+            review['score_2c'] = scores[1]
+            review['score_3c'] = scores[2]
+            review['score_4c'] = scores[3]
+            review['score_5c'] = scores[4]
+            review['score_6c'] = scores[5]
+            review['score_7c'] = scores[6]
+            review['score_8c'] = scores[7]
+            review['score_9c'] = scores[8]
+            review['score_10c'] = scores[9]
+
+            # print('Assigning similarity scores (method c) for review ' + review['review_id'])
+
+            final_output.append(review)
+
+    return final_output
 
 if __name__ == '__main__':
     ####################### DETERMINING YELP ELITE STATUS #######################
@@ -256,6 +643,7 @@ if __name__ == '__main__':
     ###################### SIMILARITY CALCULATIONS #######################
 
     REVIEW_SET = []
+    START = True
     businesses = []
     businesses_review_count = []
 
@@ -359,87 +747,135 @@ if __name__ == '__main__':
         for index, review in enumerate(REVIEW_SET):
             review['chronological_index'] = len(REVIEW_SET) - index
             review['word_count'] = len(review['text'].split())
+            review['total_ufc'] = int(review['useful']) + int(review['funny']) + int(review['cool'])
 
         # Getting just the text from the review set
-        review_texts = []
-        for review in REVIEW_SET:
-            review_texts.append(review['text'])
+        # review_texts = []
+        # for review in REVIEW_SET:
+        #     review_texts.append(review['text'])
 
         # print(sorted_review_set)
         # print(review_texts)
 
         print('----------')
         # Similarity calculations 
-        for i in range(len(review_texts)):
-            # Not comparing very first review, break after writing
-            if i == len(review_texts) - 1:
-                full_review_data = REVIEW_SET[i]
-                full_review_data['average'] = 1
-                with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
-                    writer = csv.DictWriter(file, full_review_data.keys())
-                    writer.writerow(full_review_data)
-                break
 
-            current_set = review_texts[i:]
+        # Each review will produce 30 similarity scores - 10 from a, b, and c
+
+        ###################### BY CRITERIA a, b, c #######################
+
+        # Getting the criteria outputs
+
+        final_output_a = calculate_method_a(REVIEW_SET)
+
+        final_output_b = calculate_method_b(REVIEW_SET)
+
+        final_output_c = calculate_method_c(REVIEW_SET)
+        
+        # Combining the criteria outputs
+
+        final_to_write = copy.deepcopy(final_output_a)
+
+        # Append the b criteria scores
+        for id, f in enumerate(final_to_write):
+            for i in range(10):
+                b_score = "score_" + str(i+1) + "b"
+                b_review = "reviewed_against_" + str(i+1) + "b"
+
+                f[b_review] = final_output_b[id][b_review]
+                f[b_score] = final_output_b[id][b_score]
+
+        # Append the c criteria scores
+        for id, f in enumerate(final_to_write):
+            for i in range(10):
+                c_score = "score_" + str(i+1) + "c"
+                c_review = "reviewed_against_" + str(i+1) + "c"
+
+                f[c_review] = final_output_c[id][c_review]
+                f[c_score] = final_output_c[id][c_score]
+
+        print('Writing similarity scores to file for business ' + current_business)
+        with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+            writer = csv.DictWriter(file, final_to_write[0].keys())
+            if START:
+                writer.writeheader()
+                START = False
+            for row in final_to_write:
+                writer.writerow(row)
+            print('\n')
+
+        ###################### AVERAGED PRIOR REVIEWS #######################
+
+        # for i in range(len(review_texts)):
+        #     # Not comparing very first review, break after writing
+        #     if i == len(review_texts) - 1:
+        #         full_review_data = REVIEW_SET[i]
+        #         full_review_data['average'] = 1
+        #         with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+        #             writer = csv.DictWriter(file, full_review_data.keys())
+        #             writer.writerow(full_review_data)
+        #         break
+
+        #     current_set = review_texts[i:]
             
-            LemVectorizer = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
-            # print("Transforming tokens into vectors of term frequency (TF)")
-            LemVectorizer.fit_transform(current_set)
+        #     LemVectorizer = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
+        #     # print("Transforming tokens into vectors of term frequency (TF)")
+        #     LemVectorizer.fit_transform(current_set)
 
-            # print('\nThe indexes of the terms in the vector')
-            # print(sorted(LemVectorizer.vocabulary_.items()))
+        #     # print('\nThe indexes of the terms in the vector')
+        #     # print(sorted(LemVectorizer.vocabulary_.items()))
 
-            # print("\nConverting vectors into TF matrices")
-            tf_matrix = LemVectorizer.transform(current_set).toarray()
-            # print(tf_matrix)
+        #     # print("\nConverting vectors into TF matrices")
+        #     tf_matrix = LemVectorizer.transform(current_set).toarray()
+        #     # print(tf_matrix)
 
-            # Confirm matrix shape (n x m) where n = reviews and m = terms
-            # print(tf_matrix_1.shape)
-            # print(tf_matrix_2.shape)
+        #     # Confirm matrix shape (n x m) where n = reviews and m = terms
+        #     # print(tf_matrix_1.shape)
+        #     # print(tf_matrix_2.shape)
 
-            # print("\nCalculating inverse document frequency (IDF) matrices")
-            # Each vector's component is now the idf for each term
-            tfidfTran = TfidfTransformer(norm="l2")
-            tfidfTran.fit(tf_matrix)
-            # print(len(tfidfTran.idf_))
-            # print(tfidfTran.idf_)
+        #     # print("\nCalculating inverse document frequency (IDF) matrices")
+        #     # Each vector's component is now the idf for each term
+        #     tfidfTran = TfidfTransformer(norm="l2")
+        #     tfidfTran.fit(tf_matrix)
+        #     # print(len(tfidfTran.idf_))
+        #     # print(tfidfTran.idf_)
 
-            # Manually verify that the IDF is correct
-            # print("The idf for terms that appear in one document: " + str(idf(2,1)))
-            # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
+        #     # Manually verify that the IDF is correct
+        #     # print("The idf for terms that appear in one document: " + str(idf(2,1)))
+        #     # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
 
-            # print("\nCreating the TF-IDF matrices")
-            # Transform method here multiples the tf matrix by the diagonal idf matrix
-            # The method then divides the tf-idf matrix by the Euclidean norm
-            tfidf_matrix = tfidfTran.transform(tf_matrix)
-            # print(tfidf_matrix.toarray())
+        #     # print("\nCreating the TF-IDF matrices")
+        #     # Transform method here multiples the tf matrix by the diagonal idf matrix
+        #     # The method then divides the tf-idf matrix by the Euclidean norm
+        #     tfidf_matrix = tfidfTran.transform(tf_matrix)
+        #     # print(tfidf_matrix.toarray())
 
-            # print("\nCreating the cosine similarity matrices")
-            # Multiply matrix by transpose to get final result
-            cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
-            # print(cos_similarity_matrix)
+        #     # print("\nCreating the cosine similarity matrices")
+        #     # Multiply matrix by transpose to get final result
+        #     cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
+        #     # print(cos_similarity_matrix)
 
-            # Getting average of cosine similarity score
-            first_column = cos_similarity_matrix[0]
-            first_column = first_column[1:]
-            similarity_average = sum(first_column) / len(first_column)
-            # print(first_column)
-            print('\n' + str(REVIEW_SET[i]['review_id']) + ': ' + str(similarity_average))
-            # print('Number of reviews ' + str(sorted_review_set[i]['review_id']) + ' compared to: ' + str(len(current_set)))
-            # print('\n')
+        #     # Getting average of cosine similarity score
+        #     first_column = cos_similarity_matrix[0]
+        #     first_column = first_column[1:]
+        #     similarity_average = sum(first_column) / len(first_column)
+        #     # print(first_column)
+        #     print('\n' + str(REVIEW_SET[i]['review_id']) + ': ' + str(similarity_average))
+        #     # print('Number of reviews ' + str(sorted_review_set[i]['review_id']) + ' compared to: ' + str(len(current_set)))
+        #     # print('\n')
 
-            # Write to CSV file
-            # write_file = numpy.asarray(cos_similarity_matrix)
-            # numpy.savetxt("100_businesses.csv", write_file, delimiter=",")
+        #     # Write to CSV file
+        #     # write_file = numpy.asarray(cos_similarity_matrix)
+        #     # numpy.savetxt("100_businesses.csv", write_file, delimiter=",")
              
-            full_review_data = REVIEW_SET[i]
-            full_review_data['average'] = similarity_average
-            with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
-                writer = csv.DictWriter(file, full_review_data.keys())
-                if i == 0:
-                    writer.writeheader()
-                writer.writerow(full_review_data)
-        print('\n')
+        #     full_review_data = REVIEW_SET[i]
+        #     full_review_data['average'] = similarity_average
+        #     with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+        #         writer = csv.DictWriter(file, full_review_data.keys())
+        #         if i == 0:
+        #             writer.writeheader()
+        #         writer.writerow(full_review_data)
+        # print('\n')
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
     sys.exit(0)    
