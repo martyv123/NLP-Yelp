@@ -4,6 +4,7 @@
 #
 # Maintainers: vo.ma@northeastern.edu
 
+import os
 import csv
 import json
 import sys
@@ -12,16 +13,20 @@ import string
 import nltk
 import numpy
 import copy
+import time
 import pandas as pd
+from multiprocessing import Pool
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from collections import Counter
-nltk.download('wordnet')
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
+# nltk.download('wordnet')
+# nltk.download('punkt')
+# nltk.download('averaged_perceptron_tagger')
 
-ALL_REVIEWS = []
-REVIEW_SET = [] 
+REVIEWED = 0
+REVIEW_SET = []
+START = True
+
 
 # Initialize the Tokenizer
 tokenizer = nltk.tokenize.TweetTokenizer()
@@ -118,8 +123,8 @@ def idf(n, df):
 # a. Similarity score with the most recently posted review (relative to the focal review), 
 #    2nd most recent posted review,…10th most recent posted review.
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
-def calculate_method_a(review_set):
-    print('Now calculating method a...')
+def calculate_method_a(review_set, pid):
+    print('\n' + str(pid) + ': Now calculating method a...')
     final_output = []
 
     for index, review in enumerate(review_set):
@@ -241,8 +246,8 @@ def calculate_method_a(review_set):
 #    2nd most recent posted review of the same valence as the focal review,
 #    …10th most recent posted review of the same valence as the focal review.
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
-def calculate_method_b(review_set):
-    print('Now calculating method b...')
+def calculate_method_b(review_set, pid):
+    print('\n' + str(pid) + ': Now calculating method b...')
     final_output = []
 
     for review in review_set:
@@ -375,8 +380,8 @@ def calculate_method_b(review_set):
 #    (relative to the focal review) should be “1”, and the other is “2”, for setting the order). 
 #    Once you’ve ordered all prior reviews by that rule, record similarity scores with review 1, 2, 3…10.
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
-def calculate_method_c(review_set):
-    print('Now calculating method c...')
+def calculate_method_c(review_set, pid):
+    print('\n' + str(pid) + ': Now calculating method c...')
     final_output = []
     review_set_by_ufc = sorted(review_set, key = lambda x: x['total_ufc'], reverse=True)
 
@@ -501,6 +506,243 @@ def calculate_method_c(review_set):
             final_output.append(review)
 
     return final_output
+
+def start_calculations(businesses):
+    """Starts the calculation process for a business in Yelp's data set
+
+    Args:
+        businesses (string): A single business  # TODO: fix this name, it's misleading
+
+    Returns:
+        string: A string saying the process has completed
+    """
+    global START
+    global REVIEWED
+    global REVIEW_SET
+
+    current_businesses = []
+
+    pid = os.getpid()
+
+    START = True
+
+    current_businesses.append(businesses)
+
+
+    # Working on businesses now
+    print(str(pid) + ': Process started')
+    for i, b in enumerate(current_businesses):
+        # print(str(pid) + ': There are ' + str(len(businesses) - i) + ' businesses left to parse through')
+        current_business = b
+        REVIEW_SET = []
+
+        # Getting reviews for current business
+        # print('\n' + str(pid) +  ': Getting reviews for current business #' + current_business)
+        with open('pittsburgh_reviews.csv', mode='r', encoding='utf-8') as input:
+                csv_reader = csv.DictReader(input)
+                counter = 0
+                for row in csv_reader:
+                    if counter == 0:
+                        counter += 1
+                    else:
+                        if row['business_id'] == current_business:
+                                row['elite'] = False
+                                REVIEW_SET.append(row)
+                                counter += 1
+
+        num_reviews = len(REVIEW_SET)
+
+        print('\n' + str(pid) +  ': There are ' + str(num_reviews) + ' reviews for current business ' + current_business)
+
+        # Write review count to file
+        # print(str(pid) + ': Writing review counts to file')
+        with open('pittsburgh_businesses_review_count_mp.csv', mode='a', encoding='utf-8', newline='') as to_write:
+            headers = ['business_id', 'reviews']
+            writer = csv.DictWriter(to_write, headers)
+            item = {'business_id': current_business, 'reviews': num_reviews}
+            writer.writerow(item)
+
+        # Checking for elite status in reviews
+        csv.field_size_limit(2147483647) # note: this may or may not cause issues...
+        # print(str(pid) + ':Getting Yelp Elite status for users of reviews')
+        with open('pittsburgh_users.csv', mode='r', encoding='utf-8') as input:
+            counter = 0
+            elites = 0
+            csv_reader = csv.DictReader(input)
+            for row in csv_reader:
+                # This is the input file information
+                user = row['user_id']
+                elite_years = row['elite'].split(',')
+                for i, review in enumerate(REVIEW_SET):
+                    # This is the review information
+                    review_user = review['user_id']
+                    review_date = review['date']
+                    review_year = int(review_date[0:4])
+                    if user == review_user:
+                        # print('User in file matches user in review set')
+                        # print('These are the years of elite years')
+                        # print(elite_years)
+                        # print('This is the year of the review')
+                        # print(str(review_year))
+                        for year in elite_years:
+                            if year != '':
+                                # print('Year in list of elite years: ' + str(year))
+                                if review_year == int(year):
+                                    # print('found an elite!')
+                                    REVIEW_SET[i]['elite'] = True
+                                    elites += 1
+
+        # print('There are ' + (str(elites)) + ' Yelp Elites in this set of reviews')
+
+        # Sort review set by date
+        REVIEW_SET = sorted(REVIEW_SET, key=lambda k: k['date'], reverse=True)
+
+        # Number the reviews and get word count
+        for index, review in enumerate(REVIEW_SET):
+            review['chronological_index'] = len(REVIEW_SET) - index
+            review['word_count'] = len(review['text'].split())
+            review['total_ufc'] = int(review['useful']) + int(review['funny']) + int(review['cool'])
+
+        # Getting just the text from the review set
+        # review_texts = []
+        # for review in REVIEW_SET:
+        #     review_texts.append(review['text'])
+
+        # print(sorted_review_set)
+        # print(review_texts)
+
+        # print('----------')
+        # Similarity calculations 
+
+        # Each review will produce 30 similarity scores - 10 from a, b, and c
+
+        ###################### BY CRITERIA a, b, c #######################
+
+        # Getting the criteria outputs
+
+        final_output_a = calculate_method_a(REVIEW_SET, pid)
+
+        final_output_b = calculate_method_b(REVIEW_SET, pid)
+
+        final_output_c = calculate_method_c(REVIEW_SET, pid)
+            
+        # Combining the criteria outputs
+
+        final_to_write = copy.deepcopy(final_output_a)
+
+        # Append the b criteria scores
+        for id, f in enumerate(final_to_write):
+            for i in range(10):
+                b_score = "score_" + str(i+1) + "b"
+                b_review = "reviewed_against_" + str(i+1) + "b"
+                    
+                f[b_review] = final_output_b[id][b_review]
+                f[b_score] = final_output_b[id][b_score]
+
+        # Append the c criteria scores
+        for id, f in enumerate(final_to_write):
+            for i in range(10):
+                c_score = "score_" + str(i+1) + "c"
+                c_review = "reviewed_against_" + str(i+1) + "c"
+
+                f[c_review] = final_output_c[id][c_review]
+                f[c_score] = final_output_c[id][c_score]
+
+        print('\n' + str(pid) + ': Writing similarity scores to file for business ' + current_business)
+        with open ('pittsburgh_businesses_similarities_mp.csv', 'a', encoding='utf-8', newline='') as file:
+            writer = csv.DictWriter(file, final_to_write[0].keys())
+            if START:
+                writer.writeheader()
+                START = False
+            for row in final_to_write:
+                writer.writerow(row)
+            print('\n')
+
+            ###################### AVERAGED PRIOR REVIEWS #######################
+
+            # for i in range(len(review_texts)):
+            #     # Not comparing very first review, break after writing
+            #     if i == len(review_texts) - 1:
+            #         full_review_data = REVIEW_SET[i]
+            #         full_review_data['average'] = 1
+            #         with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+            #             writer = csv.DictWriter(file, full_review_data.keys())
+            #             writer.writerow(full_review_data)
+            #         break
+
+            #     current_set = review_texts[i:]
+                
+            #     LemVectorizer = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
+            #     # print("Transforming tokens into vectors of term frequency (TF)")
+            #     LemVectorizer.fit_transform(current_set)
+
+            #     # print('\nThe indexes of the terms in the vector')
+            #     # print(sorted(LemVectorizer.vocabulary_.items()))
+
+            #     # print("\nConverting vectors into TF matrices")
+            #     tf_matrix = LemVectorizer.transform(current_set).toarray()
+            #     # print(tf_matrix)
+
+            #     # Confirm matrix shape (n x m) where n = reviews and m = terms
+            #     # print(tf_matrix_1.shape)
+            #     # print(tf_matrix_2.shape)
+
+            #     # print("\nCalculating inverse document frequency (IDF) matrices")
+            #     # Each vector's component is now the idf for each term
+            #     tfidfTran = TfidfTransformer(norm="l2")
+            #     tfidfTran.fit(tf_matrix)
+            #     # print(len(tfidfTran.idf_))
+            #     # print(tfidfTran.idf_)
+
+            #     # Manually verify that the IDF is correct
+            #     # print("The idf for terms that appear in one document: " + str(idf(2,1)))
+            #     # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
+
+            #     # print("\nCreating the TF-IDF matrices")
+            #     # Transform method here multiples the tf matrix by the diagonal idf matrix
+            #     # The method then divides the tf-idf matrix by the Euclidean norm
+            #     tfidf_matrix = tfidfTran.transform(tf_matrix)
+            #     # print(tfidf_matrix.toarray())
+
+            #     # print("\nCreating the cosine similarity matrices")
+            #     # Multiply matrix by transpose to get final result
+            #     cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
+            #     # print(cos_similarity_matrix)
+
+            #     # Getting average of cosine similarity score
+            #     first_column = cos_similarity_matrix[0]
+            #     first_column = first_column[1:]
+            #     similarity_average = sum(first_column) / len(first_column)
+            #     # print(first_column)
+            #     print('\n' + str(REVIEW_SET[i]['review_id']) + ': ' + str(similarity_average))
+            #     # print('Number of reviews ' + str(sorted_review_set[i]['review_id']) + ' compared to: ' + str(len(current_set)))
+            #     # print('\n')
+
+            #     # Write to CSV file
+            #     # write_file = numpy.asarray(cos_similarity_matrix)
+            #     # numpy.savetxt("100_businesses.csv", write_file, delimiter=",")
+                
+            #     full_review_data = REVIEW_SET[i]
+            #     full_review_data['average'] = similarity_average
+            #     with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+            #         writer = csv.DictWriter(file, full_review_data.keys())
+            #         if i == 0:
+            #             writer.writeheader()
+            #         writer.writerow(full_review_data)
+            # print('\n')
+
+        REVIEWED += 1
+        print('\n' + str(pid) + ' has now reviewed ' + str(REVIEWED) + ' businesses')
+
+        # Add to list of already analyzed businesses
+        with open('finished_businesses.csv', mode='a', encoding='utf-8') as to_write:
+            headers = ['business_id']
+            writer = csv.DictWriter(to_write, headers)
+            writer.writerow({'business_id': current_business})
+
+
+    return "\nPool processing complete."
+
 
 if __name__ == '__main__':
     ####################### DETERMINING YELP ELITE STATUS #######################
@@ -645,7 +887,6 @@ if __name__ == '__main__':
     REVIEW_SET = []
     START = True
     businesses = []
-    businesses_review_count = []
 
     # Getting businesses to work on
     print('\nGetting businesses to work on')
@@ -657,225 +898,30 @@ if __name__ == '__main__':
                 counter +=1
             else:
                 businesses.append(row.split(',')[0])
-                businesses_review_count.append({'business_id': row.split(',')[0], 'reviews': 0})
                 counter += 1
 
-    # Working on businesses now
-    print('Starting calculations')
-    for i in range(len(businesses)):
-        print('There are ' + str(len(businesses) - i) + ' businesses left to parse through')
-        current_business = businesses[i]
-        REVIEW_SET = []
+    businesses = businesses[57:] # TODO: modify the list as we progress in calculations, see finished_businesses file
+    print('\nThere are ' + str(len(businesses)) + ' in total')
 
-        # Getting reviews for current business
-        print('\nGetting reviews for current business #' + str(i))
-        with open('pittsburgh_reviews.csv', mode='r', encoding='utf-8') as input:
-            csv_reader = csv.DictReader(input)
-            counter = 0
-            for row in csv_reader:
-                if counter == 0:
-                    counter += 1
-                else:
-                    if row['business_id'] == current_business:
-                        row['elite'] = False
-                        REVIEW_SET.append(row)
-                    counter += 1
+    time.sleep(3)
 
-        num_reviews = len(REVIEW_SET)
+    ###################### MAIN LOOP #######################
 
-        # Get actual review count for businesses
-        print('Getting actual review count for this businesses')
-        for business in businesses_review_count:
-            if business['business_id'] == current_business:
-                business['reviews'] = num_reviews
+    # start_calculations(businesses)
+
+    ###################### MULTIPROCESSING #######################
+
+    
+
+    print('\nStarting pool processes...')
+    with Pool(processes=4) as pool:
+        results = pool.map(start_calculations, businesses) 
+        pool.close()
+        pool.join()
 
 
-        # Write review count to file
-        print('Writing review counts to file')
-        with open('pittsburgh_businesses_review_count.csv', mode='a', encoding='utf-8', newline='') as to_write:
-            headers = ['business_id', 'reviews']
-            writer = csv.DictWriter(to_write, headers)
-            for business in businesses_review_count:
-                if business['business_id'] == current_business:
-                    writer.writerow(business)
 
-        # Comparing review counts
-        print('\nComparing review counts')
-        with open('yelp_data/yelp_academic_dataset_business.json', mode='r', encoding='utf-8') as input:
-            for row in input:
-                data = json.loads(row)
-                if data['business_id'] == current_business:
-                    print('yelp says ' + str(data['review_count']) + ' reviews ')
-                    print('I found ' + str(len(REVIEW_SET)) + ' reviews')
 
-        # Checking for elite status in reviews
-        csv.field_size_limit(2147483647) # note: this may or may not cause issues...
-        print('\nGetting Yelp Elite status for users of reviews')
-        with open('pittsburgh_users.csv', mode='r', encoding='utf-8') as input:
-            counter = 0
-            elites = 0
-            csv_reader = csv.DictReader(input)
-            for row in csv_reader:
-                # This is the input file information
-                user = row['user_id']
-                elite_years = row['elite'].split(',')
-                for i, review in enumerate(REVIEW_SET):
-                    # This is the review information
-                    review_user = review['user_id']
-                    review_date = review['date']
-                    review_year = int(review_date[0:4])
-                    if user == review_user:
-                        # print('User in file matches user in review set')
-                        # print('These are the years of elite years')
-                        # print(elite_years)
-                        # print('This is the year of the review')
-                        # print(str(review_year))
-                        for year in elite_years:
-                            if year != '':
-                                # print('Year in list of elite years: ' + str(year))
-                                if review_year == int(year):
-                                    # print('found an elite!')
-                                    REVIEW_SET[i]['elite'] = True
-                                    elites += 1
-
-        print('There are ' + (str(elites)) + ' Yelp Elites in this set of reviews')
-
-        # Sort review set by date
-        REVIEW_SET = sorted(REVIEW_SET, key=lambda k: k['date'], reverse=True)
-
-        # Number the reviews and get word count
-        for index, review in enumerate(REVIEW_SET):
-            review['chronological_index'] = len(REVIEW_SET) - index
-            review['word_count'] = len(review['text'].split())
-            review['total_ufc'] = int(review['useful']) + int(review['funny']) + int(review['cool'])
-
-        # Getting just the text from the review set
-        # review_texts = []
-        # for review in REVIEW_SET:
-        #     review_texts.append(review['text'])
-
-        # print(sorted_review_set)
-        # print(review_texts)
-
-        print('----------')
-        # Similarity calculations 
-
-        # Each review will produce 30 similarity scores - 10 from a, b, and c
-
-        ###################### BY CRITERIA a, b, c #######################
-
-        # Getting the criteria outputs
-
-        final_output_a = calculate_method_a(REVIEW_SET)
-
-        final_output_b = calculate_method_b(REVIEW_SET)
-
-        final_output_c = calculate_method_c(REVIEW_SET)
-        
-        # Combining the criteria outputs
-
-        final_to_write = copy.deepcopy(final_output_a)
-
-        # Append the b criteria scores
-        for id, f in enumerate(final_to_write):
-            for i in range(10):
-                b_score = "score_" + str(i+1) + "b"
-                b_review = "reviewed_against_" + str(i+1) + "b"
-                
-                f[b_review] = final_output_b[id][b_review]
-                f[b_score] = final_output_b[id][b_score]
-
-        # Append the c criteria scores
-        for id, f in enumerate(final_to_write):
-            for i in range(10):
-                c_score = "score_" + str(i+1) + "c"
-                c_review = "reviewed_against_" + str(i+1) + "c"
-
-                f[c_review] = final_output_c[id][c_review]
-                f[c_score] = final_output_c[id][c_score]
-
-        print('Writing similarity scores to file for business ' + current_business)
-        with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
-            writer = csv.DictWriter(file, final_to_write[0].keys())
-            if START:
-                writer.writeheader()
-                START = False
-            for row in final_to_write:
-                writer.writerow(row)
-            print('\n')
-
-        ###################### AVERAGED PRIOR REVIEWS #######################
-
-        # for i in range(len(review_texts)):
-        #     # Not comparing very first review, break after writing
-        #     if i == len(review_texts) - 1:
-        #         full_review_data = REVIEW_SET[i]
-        #         full_review_data['average'] = 1
-        #         with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
-        #             writer = csv.DictWriter(file, full_review_data.keys())
-        #             writer.writerow(full_review_data)
-        #         break
-
-        #     current_set = review_texts[i:]
-            
-        #     LemVectorizer = CountVectorizer(tokenizer=lem_normalize, stop_words='english')
-        #     # print("Transforming tokens into vectors of term frequency (TF)")
-        #     LemVectorizer.fit_transform(current_set)
-
-        #     # print('\nThe indexes of the terms in the vector')
-        #     # print(sorted(LemVectorizer.vocabulary_.items()))
-
-        #     # print("\nConverting vectors into TF matrices")
-        #     tf_matrix = LemVectorizer.transform(current_set).toarray()
-        #     # print(tf_matrix)
-
-        #     # Confirm matrix shape (n x m) where n = reviews and m = terms
-        #     # print(tf_matrix_1.shape)
-        #     # print(tf_matrix_2.shape)
-
-        #     # print("\nCalculating inverse document frequency (IDF) matrices")
-        #     # Each vector's component is now the idf for each term
-        #     tfidfTran = TfidfTransformer(norm="l2")
-        #     tfidfTran.fit(tf_matrix)
-        #     # print(len(tfidfTran.idf_))
-        #     # print(tfidfTran.idf_)
-
-        #     # Manually verify that the IDF is correct
-        #     # print("The idf for terms that appear in one document: " + str(idf(2,1)))
-        #     # print("The idf for terms that appear in two documents: " + str(idf(2,2)))
-
-        #     # print("\nCreating the TF-IDF matrices")
-        #     # Transform method here multiples the tf matrix by the diagonal idf matrix
-        #     # The method then divides the tf-idf matrix by the Euclidean norm
-        #     tfidf_matrix = tfidfTran.transform(tf_matrix)
-        #     # print(tfidf_matrix.toarray())
-
-        #     # print("\nCreating the cosine similarity matrices")
-        #     # Multiply matrix by transpose to get final result
-        #     cos_similarity_matrix = (tfidf_matrix * tfidf_matrix.T).toarray()
-        #     # print(cos_similarity_matrix)
-
-        #     # Getting average of cosine similarity score
-        #     first_column = cos_similarity_matrix[0]
-        #     first_column = first_column[1:]
-        #     similarity_average = sum(first_column) / len(first_column)
-        #     # print(first_column)
-        #     print('\n' + str(REVIEW_SET[i]['review_id']) + ': ' + str(similarity_average))
-        #     # print('Number of reviews ' + str(sorted_review_set[i]['review_id']) + ' compared to: ' + str(len(current_set)))
-        #     # print('\n')
-
-        #     # Write to CSV file
-        #     # write_file = numpy.asarray(cos_similarity_matrix)
-        #     # numpy.savetxt("100_businesses.csv", write_file, delimiter=",")
-             
-        #     full_review_data = REVIEW_SET[i]
-        #     full_review_data['average'] = similarity_average
-        #     with open ('pittsburgh_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
-        #         writer = csv.DictWriter(file, full_review_data.keys())
-        #         if i == 0:
-        #             writer.writeheader()
-        #         writer.writerow(full_review_data)
-        # print('\n')
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
     sys.exit(0)    
