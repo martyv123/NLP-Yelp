@@ -15,6 +15,7 @@ import numpy
 import copy
 import time
 import pandas as pd
+from timeit import default_timer as timer
 from multiprocessing import Pool
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
@@ -536,6 +537,8 @@ def start_calculations(businesses):
         current_business = b
         REVIEW_SET = []
 
+        start = timer()
+
         # Getting reviews for current business
         # print('\n' + str(pid) +  ': Getting reviews for current business #' + current_business)
         with open('pittsburgh_reviews.csv', mode='r', encoding='utf-8') as input:
@@ -648,7 +651,12 @@ def start_calculations(businesses):
                 f[c_review] = final_output_c[id][c_review]
                 f[c_score] = final_output_c[id][c_score]
 
+        end = timer()
+
+        total_time = time.strftime('%H:%M:%S', time.gmtime(end - start))
+
         print('\n' + str(pid) + ': Writing similarity scores to file for business ' + current_business)
+        print(str(pid) + ': It took ' + str(total_time) + ' for ' + str(len(REVIEW_SET)) + ' reviews')
         with open ('pittsburgh_businesses_similarities_mp.csv', 'a', encoding='utf-8', newline='') as file:
             writer = csv.DictWriter(file, final_to_write[0].keys())
             if START:
@@ -889,18 +897,31 @@ if __name__ == '__main__':
     businesses = []
 
     # Getting businesses to work on
-    print('\nGetting businesses to work on')
-    with open('pittsburgh_businesses.csv', mode='r', encoding='utf-8') as input:
+    print('\nGetting all businesses to work on')
+    with open('pittsburgh_businesses.csv', mode='r', encoding='utf-8', newline='') as input:
         counter = 0
         for row in input:
             # skipping header row
             if counter == 0:
                 counter +=1
             else:
-                businesses.append(row.split(',')[0])
+                businesses.append(row.split(',')[0].rstrip())
                 counter += 1
 
-    businesses = businesses[57:] # TODO: modify the list as we progress in calculations, see finished_businesses file
+    print('\nTrimming businesses that we have already reviewed')
+    analyzed = []
+    with open('finished_businesses.csv', mode='r', encoding='utf-8') as input:
+        counter = 0
+        for row in input:
+            # skipping header row
+            if counter == 0:
+                counter += 1
+            else:
+                analyzed.append(row.split(',')[0].rstrip())
+                counter += 1
+
+    businesses = [business for business in businesses if business not in analyzed]
+
     print('\nThere are ' + str(len(businesses)) + ' in total')
 
     time.sleep(3)
