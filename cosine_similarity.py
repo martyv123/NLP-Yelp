@@ -557,14 +557,6 @@ def start_calculations(businesses):
 
         print('\n' + str(pid) +  ': There are ' + str(num_reviews) + ' reviews for current business ' + current_business)
 
-        # Write review count to file
-        # print(str(pid) + ': Writing review counts to file')
-        with open('pittsburgh_businesses_review_count_mp.csv', mode='a', encoding='utf-8', newline='') as to_write:
-            headers = ['business_id', 'reviews']
-            writer = csv.DictWriter(to_write, headers)
-            item = {'business_id': current_business, 'reviews': num_reviews}
-            writer.writerow(item)
-
         # Checking for elite status in reviews
         csv.field_size_limit(2147483647) # note: this may or may not cause issues...
         # print(str(pid) + ':Getting Yelp Elite status for users of reviews')
@@ -743,7 +735,7 @@ def start_calculations(businesses):
         print('\n' + str(pid) + ' has now reviewed ' + str(REVIEWED) + ' businesses')
 
         # Add to list of already analyzed businesses
-        with open('finished_businesses.csv', mode='a', encoding='utf-8') as to_write:
+        with open('finished_pittsburgh_businesses.csv', mode='a', encoding='utf-8', newline='') as to_write:
             headers = ['business_id']
             writer = csv.DictWriter(to_write, headers)
             writer.writerow({'business_id': current_business})
@@ -910,7 +902,7 @@ if __name__ == '__main__':
 
     print('\nTrimming businesses that we have already reviewed')
     analyzed = []
-    with open('finished_businesses.csv', mode='r', encoding='utf-8') as input:
+    with open('finished_pittsburgh_businesses.csv', mode='r', encoding='utf-8') as input:
         counter = 0
         for row in input:
             # skipping header row
@@ -932,13 +924,13 @@ if __name__ == '__main__':
 
     ###################### MULTIPROCESSING #######################
 
-    
-
     print('\nStarting pool processes...')
     with Pool(processes=4) as pool:
         results = pool.map(start_calculations, businesses) 
         pool.close()
         pool.join()
+
+
 
 
 
