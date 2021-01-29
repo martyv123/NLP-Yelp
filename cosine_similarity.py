@@ -125,7 +125,7 @@ def idf(n, df):
 #    2nd most recent posted review,…10th most recent posted review.
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
 def calculate_method_a(review_set, pid):
-    print('\n' + str(pid) + ': Now calculating method a...')
+    # print('\n' + str(pid) + ': Now calculating method a...')
     final_output = []
 
     for index, review in enumerate(review_set):
@@ -248,7 +248,7 @@ def calculate_method_a(review_set, pid):
 #    …10th most recent posted review of the same valence as the focal review.
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
 def calculate_method_b(review_set, pid):
-    print('\n' + str(pid) + ': Now calculating method b...')
+    # print('\n' + str(pid) + ': Now calculating method b...')
     final_output = []
 
     for review in review_set:
@@ -382,7 +382,7 @@ def calculate_method_b(review_set, pid):
 #    Once you’ve ordered all prior reviews by that rule, record similarity scores with review 1, 2, 3…10.
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
 def calculate_method_c(review_set, pid):
-    print('\n' + str(pid) + ': Now calculating method c...')
+    # print('\n' + str(pid) + ': Now calculating method c...')
     final_output = []
     review_set_by_ufc = sorted(review_set, key = lambda x: x['total_ufc'], reverse=True)
 
@@ -541,7 +541,7 @@ def start_calculations(businesses):
 
         # Getting reviews for current business
         # print('\n' + str(pid) +  ': Getting reviews for current business #' + current_business)
-        with open('pittsburgh_reviews.csv', mode='r', encoding='utf-8') as input:
+        with open('las_vegas_reviews.csv', mode='r', encoding='utf-8') as input:
                 csv_reader = csv.DictReader(input)
                 counter = 0
                 for row in csv_reader:
@@ -560,7 +560,7 @@ def start_calculations(businesses):
         # Checking for elite status in reviews
         csv.field_size_limit(2147483647) # note: this may or may not cause issues...
         # print(str(pid) + ':Getting Yelp Elite status for users of reviews')
-        with open('pittsburgh_users.csv', mode='r', encoding='utf-8') as input:
+        with open('las_vegas_users.csv', mode='r', encoding='utf-8') as input:
             counter = 0
             elites = 0
             csv_reader = csv.DictReader(input)
@@ -649,7 +649,7 @@ def start_calculations(businesses):
 
         print('\n' + str(pid) + ': Writing similarity scores to file for business ' + current_business)
         print(str(pid) + ': It took ' + str(total_time) + ' for ' + str(len(REVIEW_SET)) + ' reviews')
-        with open ('pittsburgh_businesses_similarities_mp.csv', 'a', encoding='utf-8', newline='') as file:
+        with open ('las_vegas_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
             writer = csv.DictWriter(file, final_to_write[0].keys())
             if START:
                 writer.writeheader()
@@ -735,13 +735,13 @@ def start_calculations(businesses):
         print('\n' + str(pid) + ' has now reviewed ' + str(REVIEWED) + ' businesses')
 
         # Add to list of already analyzed businesses
-        with open('finished_pittsburgh_businesses.csv', mode='a', encoding='utf-8', newline='') as to_write:
+        with open('finished_las_vegas_businesses.csv', mode='a', encoding='utf-8', newline='') as to_write:
             headers = ['business_id']
             writer = csv.DictWriter(to_write, headers)
             writer.writerow({'business_id': current_business})
 
 
-    return "\nPool processing complete."
+    return ("\n" + str(pid) + ": Pool processing complete.")
 
 
 if __name__ == '__main__':
@@ -890,7 +890,7 @@ if __name__ == '__main__':
 
     # Getting businesses to work on
     print('\nGetting all businesses to work on')
-    with open('pittsburgh_businesses.csv', mode='r', encoding='utf-8', newline='') as input:
+    with open('las_vegas_businesses.csv', mode='r', encoding='utf-8', newline='') as input:
         counter = 0
         for row in input:
             # skipping header row
@@ -902,7 +902,7 @@ if __name__ == '__main__':
 
     print('\nTrimming businesses that we have already reviewed')
     analyzed = []
-    with open('finished_pittsburgh_businesses.csv', mode='r', encoding='utf-8') as input:
+    with open('finished_las_vegas_businesses.csv', mode='r', encoding='utf-8') as input:
         counter = 0
         for row in input:
             # skipping header row
