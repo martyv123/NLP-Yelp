@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-#
 # Sample parsing, lemmatization, TF analysis, and cosine similarity on multiple review groups.
 #
 # Maintainers: vo.ma@northeastern.edu
@@ -27,7 +25,6 @@ from collections import Counter
 REVIEWED = 0
 REVIEW_SET = []
 START = True
-
 
 # Initialize the Tokenizer
 tokenizer = nltk.tokenize.TweetTokenizer()
@@ -122,7 +119,6 @@ def idf(n, df):
     return result
 
 # a. Similarity score with the most recently posted review (relative to the focal review), 
-#    2nd most recent posted review,…10th most recent posted review.
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
 def calculate_method_a(review_set, pid):
     # print('\n' + str(pid) + ': Now calculating method a...')
@@ -244,8 +240,7 @@ def calculate_method_a(review_set, pid):
     return final_output
 
 # b. Similarity score with the most recently posted review (relative to the focal review) of the same valence as the focal review, 
-#    2nd most recent posted review of the same valence as the focal review,
-#    …10th most recent posted review of the same valence as the focal review.
+#    2nd most recent posted review of the same valence as the focal review, until 10
 #    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
 def calculate_method_b(review_set, pid):
     # print('\n' + str(pid) + ': Now calculating method b...')
@@ -375,12 +370,8 @@ def calculate_method_b(review_set, pid):
     
     return final_output
 
-# c. For each prior review, calculate the total of “useful”, “funny” and “cool” count, 
-#    and select 10 reviews with the highest counts (1, 2, 3…10). For reviews with the same count, use recency to determine the order 
-#    (e.g., if two prior reviews have the same max count, the review out of these two that is more recent 
-#    (relative to the focal review) should be “1”, and the other is “2”, for setting the order). 
-#    Once you’ve ordered all prior reviews by that rule, record similarity scores with review 1, 2, 3…10.
-#    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
+
+#    TODO: fix this line ------ had to remove this line because of ascii issue on cluster 
 def calculate_method_c(review_set, pid):
     # print('\n' + str(pid) + ': Now calculating method c...')
     final_output = []
@@ -744,7 +735,7 @@ def start_calculations(businesses):
     return ("\n" + str(pid) + ": Pool processing complete.")
 
 
-if __name__ == '__main__':
+def main():
     ####################### DETERMINING YELP ELITE STATUS #######################
 
     # elite_users = {'2005': [], '2006': [], '2007': [], '2008': [], '2009': [], 
@@ -925,7 +916,7 @@ if __name__ == '__main__':
     ###################### MULTIPROCESSING #######################
 
     print('\nStarting pool processes...')
-    with Pool(processes=4) as pool:
+    with Pool(processes=18) as pool:
         results = pool.map(start_calculations, businesses) 
         pool.close()
         pool.join()
@@ -937,4 +928,8 @@ if __name__ == '__main__':
 
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
-    sys.exit(0)    
+
+
+main()
+
+sys.exit(0)    
