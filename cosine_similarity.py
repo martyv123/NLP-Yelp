@@ -12,6 +12,7 @@ import nltk
 import numpy
 import copy
 import time
+import argparse
 import pandas as pd
 from timeit import default_timer as timer
 from multiprocessing import Pool
@@ -21,6 +22,14 @@ from collections import Counter
 # nltk.download('wordnet')
 # nltk.download('punkt')
 # nltk.download('averaged_perceptron_tagger')
+
+parser = argparse.ArgumentParser(description='Command line arguments')
+parser.add_argument('businesses_file', type=str, help='The source file containing businesses for calculations')
+parser.add_argument('reviews_file', type=str, help='The source file for the reviews of the businesses')
+parser.add_argument('users_file', type=str, help='The source file for the users of the reviews')
+parser.add_argument('calculations_file', type=str, help='The file where the outputted calculations will go')
+parser.add_argument('finished_businesses_file', type=str, help='The file where the outputted calculations will go')
+args = parser.parse_args()
 
 REVIEWED = 0
 REVIEW_SET = []
@@ -532,7 +541,7 @@ def start_calculations(businesses):
 
         # Getting reviews for current business
         # print('\n' + str(pid) +  ': Getting reviews for current business #' + current_business)
-        with open('chicago_reviews.csv', mode='r', encoding='utf-8') as input:
+        with open(args.reviews_file, mode='r', encoding='utf-8') as input:
                 csv_reader = csv.DictReader(input)
                 counter = 0
                 for row in csv_reader:
@@ -551,7 +560,7 @@ def start_calculations(businesses):
         # Checking for elite status in reviews
         csv.field_size_limit(2147483647) # note: this may or may not cause issues...
         # print(str(pid) + ':Getting Yelp Elite status for users of reviews')
-        with open('chicago_users.csv', mode='r', encoding='utf-8') as input:
+        with open(args.users_file, mode='r', encoding='utf-8') as input:
             counter = 0
             elites = 0
             csv_reader = csv.DictReader(input)
@@ -640,7 +649,7 @@ def start_calculations(businesses):
 
         print('\n' + str(pid) + ': Writing similarity scores to file for business ' + current_business)
         print(str(pid) + ': It took ' + str(total_time) + ' for ' + str(len(REVIEW_SET)) + ' reviews')
-        with open ('chicago_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+        with open (args.calculations_file, 'a', encoding='utf-8', newline='') as file:
             writer = csv.DictWriter(file, final_to_write[0].keys())
             if START:
                 writer.writeheader()
@@ -726,7 +735,7 @@ def start_calculations(businesses):
         print('\n' + str(pid) + ' has now reviewed ' + str(REVIEWED) + ' businesses')
 
         # Add to list of already analyzed businesses
-        with open('finished_chicago_businesses.csv', mode='a', encoding='utf-8', newline='') as to_write:
+        with open(args.finished_businesses_file, mode='a', encoding='utf-8', newline='') as to_write:
             headers = ['business_id']
             writer = csv.DictWriter(to_write, headers)
             writer.writerow({'business_id': current_business})
@@ -881,7 +890,7 @@ def main():
 
     # Getting businesses to work on
     print('\nGetting all businesses to work on')
-    with open('chicago_businesses.csv', newline='') as input:
+    with open(args.businesses_file, newline='') as input:
         counter = 0
         for row in input:
             # skipping header row
@@ -893,7 +902,7 @@ def main():
 
     print('\nTrimming businesses that we have already reviewed')
     analyzed = []
-    with open('finished_chicago_businesses.csv', mode='r', encoding='utf-8') as input:
+    with open(args.finished_businesses_file, mode='r', encoding='utf-8') as input:
         counter = 0
         for row in input:
             # skipping header row
