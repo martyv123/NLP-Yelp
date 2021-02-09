@@ -532,7 +532,7 @@ def start_calculations(businesses):
 
         # Getting reviews for current business
         # print('\n' + str(pid) +  ': Getting reviews for current business #' + current_business)
-        with open('las_vegas_reviews.csv', mode='r', encoding='utf-8') as input:
+        with open('chicago_reviews.csv', mode='r', encoding='utf-8') as input:
                 csv_reader = csv.DictReader(input)
                 counter = 0
                 for row in csv_reader:
@@ -551,7 +551,7 @@ def start_calculations(businesses):
         # Checking for elite status in reviews
         csv.field_size_limit(2147483647) # note: this may or may not cause issues...
         # print(str(pid) + ':Getting Yelp Elite status for users of reviews')
-        with open('las_vegas_users.csv', mode='r', encoding='utf-8') as input:
+        with open('chicago_users.csv', mode='r', encoding='utf-8') as input:
             counter = 0
             elites = 0
             csv_reader = csv.DictReader(input)
@@ -640,7 +640,7 @@ def start_calculations(businesses):
 
         print('\n' + str(pid) + ': Writing similarity scores to file for business ' + current_business)
         print(str(pid) + ': It took ' + str(total_time) + ' for ' + str(len(REVIEW_SET)) + ' reviews')
-        with open ('las_vegas_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
+        with open ('chicago_businesses_similarities.csv', 'a', encoding='utf-8', newline='') as file:
             writer = csv.DictWriter(file, final_to_write[0].keys())
             if START:
                 writer.writeheader()
@@ -726,7 +726,7 @@ def start_calculations(businesses):
         print('\n' + str(pid) + ' has now reviewed ' + str(REVIEWED) + ' businesses')
 
         # Add to list of already analyzed businesses
-        with open('finished_las_vegas_businesses.csv', mode='a', encoding='utf-8', newline='') as to_write:
+        with open('finished_chicago_businesses.csv', mode='a', encoding='utf-8', newline='') as to_write:
             headers = ['business_id']
             writer = csv.DictWriter(to_write, headers)
             writer.writerow({'business_id': current_business})
@@ -881,7 +881,7 @@ def main():
 
     # Getting businesses to work on
     print('\nGetting all businesses to work on')
-    with open('las_vegas_businesses.csv', mode='r', encoding='utf-8', newline='') as input:
+    with open('chicago_businesses.csv', newline='') as input:
         counter = 0
         for row in input:
             # skipping header row
@@ -893,7 +893,7 @@ def main():
 
     print('\nTrimming businesses that we have already reviewed')
     analyzed = []
-    with open('finished_las_vegas_businesses.csv', mode='r', encoding='utf-8') as input:
+    with open('finished_chicago_businesses.csv', mode='r', encoding='utf-8') as input:
         counter = 0
         for row in input:
             # skipping header row
@@ -920,6 +920,8 @@ def main():
         results = pool.map(start_calculations, businesses) 
         pool.close()
         pool.join()
+
+    
 
 
 
