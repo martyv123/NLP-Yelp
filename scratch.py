@@ -1,31 +1,15 @@
 import csv
-import sys
-
-# csv.field_size_limit(2147483647)
-
-# with open('pittsburgh_users.csv', mode='r', encoding='utf-8') as input:
-#     csv_reader = csv.DictReader(input)
-#     for row in csv_reader:
-#         print(type(row['elite']))
 
 
-# example = ['a', 'b', 'c', 'd', 'e']
+businesses = set()
 
-# print(example[0:5])
-
-# print([1 for i in range(10)])
-
-example = []
-
-example.append({'date': 2010, 'total_ufc': 0})
-example.append({'date': 2011, 'total_ufc': 15})
-example.append({'date': 2012, 'total_ufc': 18})
-example.append({'date': 2013, 'total_ufc': 18})
-example.append({'date': 2014, 'total_ufc': 3})
-example.append({'date': 2015, 'total_ufc': 1})
-example.append({'date': 2015, 'total_ufc': 45})
-
-example = sorted(example, key = lambda x: (x['date'], x['total_ufc']), reverse=True)
-
-print(example)
-
+with open('open_table/las_vegas.csv', mode='r') as input:
+    csv_reader = csv.reader(input, delimiter=',')
+    for row in csv_reader:
+        businesses.add(row[2])
+        
+with open('open_table/las_vegas_businesses.csv', mode='a', newline='') as output:
+    csv_writer = csv.writer(output, delimiter=',')
+    csv_writer.writerow(['business'])
+    for b in businesses:
+        csv_writer.writerow([b])
