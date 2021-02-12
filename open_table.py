@@ -608,7 +608,7 @@ def main():
 
     # Getting businesses to work on
     print('\nGetting all businesses to work on')
-    with open(args.businesses_file, newline='') as input:
+    with open(args.businesses_file, newline='', mode='r', encoding='utf-8') as input:
         counter = 0
         for row in input:
             # skipping header row
