@@ -584,8 +584,7 @@ def start_calculations(businesses):
 
     return ("\n" + str(pid) + ": Pool processing complete.")
 
-
-def main():
+if __name__ == '__main__':
     ####################### PARSING AND SET-UP #######################
     print('-----------------------------------')
     print("Starting analysis script...")
@@ -652,7 +651,4 @@ def main():
 
     print('\nTF-IDF analysis and Cosine Similarity calculation complete.')
 
-
-main()
-
-sys.exit(0)    
+    sys.exit(0)    
