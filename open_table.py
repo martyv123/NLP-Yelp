@@ -466,14 +466,14 @@ def start_calculations(businesses):
 
     START = True
 
-    current_businesses.append(businesses)
+    current_businesses.append(businesses.rstrip())
 
 
     # Working on businesses now
     print(str(pid) + ': Process started')
     for i, b in enumerate(current_businesses):
         # print(str(pid) + ': There are ' + str(len(businesses) - i) + ' businesses left to parse through')
-        current_business = b
+        current_business = b.rstrip()
         REVIEW_SET = []
 
         start = timer()
@@ -487,8 +487,8 @@ def start_calculations(businesses):
                     if counter == 0:
                         counter += 1
                     else:
-                        print(row)
-                        if row['restaurant'] == current_business:
+                        # print(row)
+                        if row['restaurant'].rstrip() == current_business:
                                 row['vip'] = ""
                                 REVIEW_SET.append(row)
                                 counter += 1
@@ -506,8 +506,8 @@ def start_calculations(businesses):
             csv_reader = csv.DictReader(input)
             for row in csv_reader:
                 # This is the input file information
-                user = row['reviewer']
-                vip = row['vip']
+                user = row['reviewer'].rstrip()
+                vip = row['vip'].rstrip()
                 for i, review in enumerate(REVIEW_SET):
                     # This is the review information
                     review_user = review['reviewer']
@@ -577,9 +577,9 @@ def start_calculations(businesses):
 
         # Add to list of already analyzed businesses
         with open(args.finished_businesses_file, mode='a', encoding='utf-8', newline='') as to_write:
-            headers = ['business_id']
+            headers = ['business']
             writer = csv.DictWriter(to_write, headers)
-            writer.writerow({'business_id': current_business})
+            writer.writerow({'business': current_business})
 
 
     return ("\n" + str(pid) + ": Pool processing complete.")
