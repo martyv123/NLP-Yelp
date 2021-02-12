@@ -319,7 +319,7 @@ def calculate_method_b(review_set, pid):
     return final_output
 
 
-# TODO: fix this method documentation ------ had to remove this line because of ascii issue on cluster 
+# c. Similarity score with reviews with highest number of "useful", "funny", and "cool" counts
 def calculate_method_c(review_set, pid):
     # print('\n' + str(pid) + ': Now calculating method c...')
     final_output = []
@@ -451,7 +451,7 @@ def start_calculations(businesses):
     """Starts the calculation process for a business in Yelp's data set
 
     Args:
-        businesses (string): A single business  # TODO: fix this name, it's misleading
+        businesses (string): A single business - the name is misleading.
 
     Returns:
         string: A string saying the process has completed
