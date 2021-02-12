@@ -9,7 +9,7 @@
 
 # Implementation Details 
 
-This `cosine_similarity.py` script works with the dataset provided by Yelp to calcualte the textual similarity between reviews.
+The `cosine_similarity.py` script works with the dataset provided by Yelp to calcualte the textual similarity between reviews.
 The script will parse, lemmatize, and perform a term frequency (TF) analysis on the reviews
 provided in the sample.txt file. More specifically, it performs a TF-IDF analysis, which stands
 for Term Frequency (TF) - Inverse Document Frequency (IDF). We then use the weighted values of
