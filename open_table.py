@@ -487,6 +487,7 @@ def start_calculations(businesses):
                     if counter == 0:
                         counter += 1
                     else:
+                        print(row)
                         if row['restaurant'] == current_business:
                                 row['vip'] = ""
                                 REVIEW_SET.append(row)
