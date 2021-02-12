@@ -27,12 +27,12 @@ transformations were calculated using scikit-learn's library. You can find more 
 calculations and methods [here](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.feature_extraction.text).
 
 This script will return the ouputted cosine similarity values to an output file. There were several criteria used to decide
-which reviews to compare against each other. One method analyzed a focal review against the ten previous chronological reviews.
+which reviews to compare against each other. The first method analyzed a focal review against the ten previous chronological reviews.
 The second method analyzed a focal review against the the ten previous chronological reviews with the same number of stars.
 The third method analyzed a focal review against the ten previous chronological reviews with the same number of accolades.
 
 Support for OpenTable reviews can be found in the `open_table.py` script. This analyzes reviews from OpenTable in a similar fashion.
-T
+
 
 <br>
 
