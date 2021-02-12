@@ -323,7 +323,7 @@ def calculate_method_b(review_set, pid):
 def calculate_method_c(review_set, pid):
     # print('\n' + str(pid) + ': Now calculating method c...')
     final_output = []
-    review_set_by_ufc = sorted(review_set, key = lambda x: x['total_ufc'], reverse=True)
+    review_set_by_ufc = sorted(review_set, key = lambda x: x['total_ofsa'], reverse=True)
 
     for review in review_set:
 
@@ -480,7 +480,7 @@ def start_calculations(businesses):
 
         # Getting reviews for current business
         # print('\n' + str(pid) +  ': Getting reviews for current business #' + current_business)
-        with open(args.reviews_file, mode='r', encoding='utf-8') as input:
+        with open(args.reviews_file, mode='r', encoding='utf-8-sig') as input:
                 csv_reader = csv.DictReader(input)
                 counter = 0
                 for row in csv_reader:
@@ -500,7 +500,7 @@ def start_calculations(businesses):
         # Checking for elite status in reviews
         csv.field_size_limit(2147483647) # note: this may or may not cause issues...
         # print(str(pid) + ':Getting Yelp Elite status for users of reviews')
-        with open(args.reviews_file, mode='r', encoding='utf-8') as input:
+        with open(args.reviews_file, mode='r', encoding='utf-8-sig') as input:
             counter = 0
             elites = 0
             csv_reader = csv.DictReader(input)
@@ -517,13 +517,35 @@ def start_calculations(businesses):
         # print('There are ' + (str(elites)) + ' Yelp Elites in this set of reviews')
 
         # Sort review set by date
+        # print(REVIEW_SET[0])
         REVIEW_SET = sorted(REVIEW_SET, key=lambda k: k['date'], reverse=True)
 
         # Number the reviews and get word count
         for index, review in enumerate(REVIEW_SET):
             review['chronological_index'] = len(REVIEW_SET) - index
-            review['word_count'] = len(review['review'].split())
-            review['total_ofsa'] = int(review['overall']) + int(review['food']) + int(review['service'] + int(review['ambience']))
+            review['word_count'] = len(review['review'].split()
+            total = 0
+            overall = review['overall']
+            food = review['food']
+            service = review['service']
+            ambience = review['ambience']
+            if overall == '':
+                total += 0
+            if overall != '':
+                total += int(overall)
+            if food == '':
+                total += 0
+            if food != '':
+                total += int(food)
+            if service == '':
+                total += 0
+            if service != '':
+                total += int(service)
+            if ambience == '':
+                total += 0
+            if ambience != '':
+                total += int(ambience)
+            review['total_ofsa'] = total
 
         ###################### BY CRITERIA a, b, c #######################
 
