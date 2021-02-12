@@ -1,0 +1,15 @@
+Loading the Conda module
+Activate Conda environment
+Start the Python script
+-----------------------------------
+Starting analysis script...
+
+Getting all businesses to work on
+
+Trimming businesses that we have already reviewed
+
+There are 0 in total
+
+Starting pool processes...
+
+TF-IDF analysis and Cosine Similarity calculation complete.
