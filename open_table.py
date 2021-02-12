@@ -523,7 +523,7 @@ def start_calculations(businesses):
         # Number the reviews and get word count
         for index, review in enumerate(REVIEW_SET):
             review['chronological_index'] = len(REVIEW_SET) - index
-            review['word_count'] = len(review['review'].split()
+            review['word_count'] = len(review['review'].split())
             total = 0
             overall = review['overall']
             food = review['food']
