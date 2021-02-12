@@ -1,16 +1,23 @@
-# Text Frequency Analysis
+# Text Similarity Analysis
 
+
+### Dr. Ann Kronrod
+### ann_kronrod@uml.edu
+
+### Dr. Bart Yakov
+### y.bart@northeastern.edu
 
 #### Marty Vo
 #### vo.ma@northeastern.edu
+
 #### Last updated: 12/12/2020
 
 <br>
 
 # Implementation Details 
 
-This is a minimal script that reads in the ten text review examples provided by Prof. Bart. The
-script will parse, lemmatize, and perform a term frequency (TF) analysis on the reviews
+This is a script that works with the dataset provided by Yelp to calcualte the textual similarity between reviews.
+The script will parse, lemmatize, and perform a term frequency (TF) analysis on the reviews
 provided in the sample.txt file. More specifically, it performs a TF-IDF analysis, which stands
 for Term Frequency (TF) - Inverse Document Frequency (IDF). We then use the weighted values of
 the terms in the reviews to compare the similarity between reviews by using cosine similarity. As we 
@@ -26,9 +33,13 @@ The term frequency, inverse document frequency, cosine similarity, and all inter
 transformations were calculated using scikit-learn's library. You can find more information about the 
 calculations and methods [here](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.feature_extraction.text).
 
-This script will return the cosine similarity matrix of the reviews. The closer the value of cosine θ is to 1,
-the more similar the two reviews. A value of 1 indicates that the documents are identical.
+This script will return the ouputted cosine similarity values to an output file. There were several criteria used to decide
+which reviews to compare against each other. One method analyzed a focal review against the ten previous chronological reviews.
+The second method analyzed a focal review against the the ten previous chronological reviews with the same number of stars.
+The third method analyzed a focal review against the ten previous chronological reviews with the same number of accolades.
 
+Support for OpenTable reviews can be found in the `open_table.py` script. This analyzes reviews from OpenTable in a similar fashion.
+T
 
 <br>
 
