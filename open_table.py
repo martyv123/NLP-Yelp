@@ -487,6 +487,7 @@ def start_calculations(businesses):
                     if counter == 0:
                         counter += 1
                     else:
+                        print(row)
                         if row['restaurant'] == current_business:
                                 row['vip'] = ""
                                 REVIEW_SET.append(row)
@@ -608,7 +609,7 @@ def main():
 
     # Getting businesses to work on
     print('\nGetting all businesses to work on')
-    with open(args.businesses_file, newline='') as input:
+    with open(args.businesses_file, newline='', mode='r', encoding='utf-8') as input:
         counter = 0
         for row in input:
             # skipping header row
