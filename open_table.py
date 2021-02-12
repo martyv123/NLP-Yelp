@@ -201,7 +201,7 @@ def calculate_method_b(review_set, pid):
 
         # Get 1 focal review + 10 prior reviews with same number of stars
         for r in review_set:
-            if review['vip'] == r['vip'] and review['review'] != r['review'] and review['date'] > r['date']:
+            if review['overall'] == r['overall'] and review['review'] != r['review'] and review['date'] > r['date']:
                 current_set.append(r)
             if len(current_set) == 11:
                 break
@@ -319,7 +319,8 @@ def calculate_method_b(review_set, pid):
     return final_output
 
 
-# TODO: fix this method documentation ------ had to remove this line because of ascii issue on cluster 
+# c. Similarity score with the most recently posted review (relative to the focal review) of the same total accolades, 2nd, ... 10th
+#    If less than 10 reviews for the focal review, output similarity score of 1 for each remaining review
 def calculate_method_c(review_set, pid):
     # print('\n' + str(pid) + ': Now calculating method c...')
     final_output = []
