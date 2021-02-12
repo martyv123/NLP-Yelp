@@ -48,7 +48,7 @@ The basis for this script was taken from the article below:
 * https://sites.temple.edu/tudsc/2017/03/30/measuring-similarity-between-texts-in-python/
   
 
-Other resources:
+Other resources used to create this script:
 
 * https://medium.com/@adriensieg/text-similarities-da019229c894
 
