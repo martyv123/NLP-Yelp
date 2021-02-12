@@ -1,16 +1,9 @@
 # Text Similarity Analysis
 
 
-### Dr. Ann Kronrod
-### ann_kronrod@uml.edu
+#### Authors Dr. Ann Kronrod, Dr. Bart Yakov, Marty Vo
+#### Maintainers: ann_kronrod@uml.edu, y.bart@northeastern.edu, vo.ma@northeastern.edu
 
-### Dr. Bart Yakov
-### y.bart@northeastern.edu
-
-#### Marty Vo
-#### vo.ma@northeastern.edu
-
-#### Last updated: 12/12/2020
 
 <br>
 
