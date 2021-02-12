@@ -28,7 +28,7 @@ parser.add_argument('businesses_file', type=str, help='The source file containin
 parser.add_argument('reviews_file', type=str, help='The source file for the reviews of the businesses')
 parser.add_argument('users_file', type=str, help='The source file for the users of the reviews')
 parser.add_argument('calculations_file', type=str, help='The file where the outputted calculations will go')
-parser.add_argument('finished_businesses_file', type=str, help='The file where the outputted calculations will go')
+parser.add_argument('finished_businesses_file', type=str, help='The file where the list of finished businesses will go')
 args = parser.parse_args()
 
 REVIEWED = 0
