@@ -8,6 +8,202 @@ Getting all businesses to work on
 
 Trimming businesses that we have already reviewed
 
-There are 216 in total
+There are 120 in total
 
 Starting pool processes...
+41286: Process started
+
+41286: There are 334 reviews for current business Carmella's Plates and Pints
+41286: Process started
+
+41286: There are 33 reviews for current business Hartwood Restaurant & Whispers Pub
+41286: Process started
+
+41286: There are 596 reviews for current business Luke Wholey's Wild Alaskan Grille
+41286: Process started
+
+41286: There are 349 reviews for current business Garbarino's
+41286: Process started
+
+41286: There are 546 reviews for current business The Melting Pot - Pittsburgh
+41286: Process started
+
+41286: There are 119 reviews for current business BJ's Restaurant & Brewhouse - McCandless
+41285: Process started
+
+41285: There are 2065 reviews for current business Firebirds Wood Fired Grill - Cranberry
+41279: Process started
+
+41279: There are 385 reviews for current business Andora Fox Chapel
+41279: Process started
+
+41279: There are 552 reviews for current business Juniper Grill - Murrysville
+41279: Process started
+
+41279: There are 902 reviews for current business Breakneck Tavern
+41279: Process started
+
+41279: There are 182 reviews for current business Robokyo Japanese Steakhouse and Sushi Bar
+41289: Process started
+
+41289: There are 975 reviews for current business Walnut Grill - Wexford
+41289: Process started
+
+41289: There are 157 reviews for current business Ember & Vine at DoubleTree Cranberry
+41289: Process started
+
+41289: There are 221 reviews for current business Vallozzi's Greensburg
+41289: Process started
+
+41289: There are 788 reviews for current business Walnut Grill - Bridgeville
+41291: Process started
+
+41291: There are 0 reviews for current business "Red
+
+41291: Writing similarity scores to file for business "Red
+41291: It took 00:00:03 for 0 reviews
+41291: Process started
+
+41291: There are 49 reviews for current business Cinderlands Warehouse
+41291: Process started
+
+41291: There are 101 reviews for current business Aqueous
+41291: Process started
+
+41291: There are 116 reviews for current business Jacksons Restaurant & Bar
+41291: Process started
+
+41291: There are 114 reviews for current business Houlihan's - Cranberry Township
+41291: Process started
+
+41291: There are 1424 reviews for current business Bistecca
+41291: Process started
+
+41291: There are 395 reviews for current business Station
+41294: Process started
+
+41294: There are 223 reviews for current business The Vandal
+41294: Process started
+
+41294: There are 2134 reviews for current business Nola on the Square
+41292: Process started
+
+41292: There are 1636 reviews for current business The Commoner
+41292: Process started
+
+41292: There are 796 reviews for current business Atria's - Mt. Lebanon
+41284: Process started
+
+41284: There are 167 reviews for current business Huszar
+41284: Process started
+
+41284: There are 731 reviews for current business Bravo Italian Kitchen - Pittsburgh - Galleria
+41284: Process started
+
+41284: There are 1672 reviews for current business Vallozzi's Pittsburgh
+41287: Process started
+
+41287: There are 1657 reviews for current business Paris 66
+41287: Process started
+
+41287: There are 983 reviews for current business Social House 7
+41282: Process started
+
+41282: There are 139 reviews for current business Plum Pan Asian Kitchen
+41282: Process started
+
+41282: There are 130 reviews for current business Scoglio Greentree
+41282: Process started
+
+41282: There are 123 reviews for current business Fig & Ash
+41282: Process started
+
+41282: There are 858 reviews for current business Il Tetto at Sienna Mercato
+41282: Process started
+
+41282: There are 89 reviews for current business Asiago's Tuscan Italian - Permanently Closed
+41282: Process started
+
+41282: There are 32 reviews for current business One Eleven
+41282: Process started
+
+41282: There are 1935 reviews for current business Eddie Merlot's Prime Aged Beef & Seafood - Pittsburgh
+41280: Process started
+
+41280: There are 643 reviews for current business Bravo Italian Kitchen - Pittsburgh - Robinson
+41280: Process started
+
+41280: There are 43 reviews for current business Barattolo
+41280: Process started
+
+41280: There are 2586 reviews for current business McCormick & Schmick's Seafood - Pittsburgh South Side
+41293: Process started
+
+41293: There are 1240 reviews for current business LeMont Restaurant
+41293: Process started
+
+41293: There are 118 reviews for current business The Fire Side Public House
+41293: Process started
+
+41293: There are 133 reviews for current business Fish nor Fowl
+41293: Process started
+
+41293: There are 1676 reviews for current business Braddock's Rebellion
+41288: Process started
+
+41288: There are 2 reviews for current business Kings Family Restaurant - Heidelburg
+41288: Process started
+
+41288: There are 187 reviews for current business Sugar and Smoke
+41288: Process started
+
+41288: There are 1062 reviews for current business Senti Restaurant
+41288: Process started
+
+41288: There are 1647 reviews for current business Mitchell's Fish Market - Galleria - Pittsburgh
+41278: Process started
+
+41278: There are 3405 reviews for current business Altius
+41290: Process started
+
+41290: There are 602 reviews for current business Napa Prime Chophouse
+41290: Process started
+
+41290: There are 1095 reviews for current business Atria's - Pleasant Hills
+41290: Process started
+
+41290: There are 97 reviews for current business The Yard Gastropub Mt. Lebanon
+41290: Process started
+
+41290: There are 2445 reviews for current business Off The Hook
+41277: Process started
+
+41277: There are 1095 reviews for current business Butterjoint
+41277: Process started
+
+41277: There are 3510 reviews for current business Willow
+41283: Process started
+
+41283: There are 4867 reviews for current business Lidia's Pittsburgh
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 121, in worker
+    result = (True, func(*args, **kwds))
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 44, in mapstar
+    return list(map(*args))
+  File "open_table.py", line 590, in start_calculations
+    writer = csv.DictWriter(file, final_to_write[0].keys())
+IndexError: list index out of range
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "open_table.py", line 671, in <module>
+    results = pool.map(start_calculations, businesses) 
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 268, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 657, in get
+    raise self._value
+IndexError: list index out of range

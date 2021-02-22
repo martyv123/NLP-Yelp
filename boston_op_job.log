@@ -8,6 +8,196 @@ Getting all businesses to work on
 
 Trimming businesses that we have already reviewed
 
-There are 491 in total
+There are 232 in total
 
 Starting pool processes...
+14379: Process started
+
+14379: There are 154 reviews for current business Wit's End
+14379: Process started
+
+14379: There are 943 reviews for current business Taberna de Haro
+14379: Process started
+
+14379: There are 62 reviews for current business Thelonious Monkfish
+14379: Process started
+
+14379: There are 258 reviews for current business Lorettas Last Call
+14379: Process started
+
+14379: There are 0 reviews for current business "Gyu-Kaku - Boston
+
+14379: Writing similarity scores to file for business "Gyu-Kaku - Boston
+14379: It took 00:00:11 for 0 reviews
+14379: Process started
+
+14379: There are 99 reviews for current business P.F. Chang's - Boston
+14379: Process started
+
+14379: There are 242 reviews for current business Cosmica
+14378: Process started
+
+14378: There are 1578 reviews for current business Monica's Trattoria
+14381: Process started
+
+14381: There are 933 reviews for current business Ol??
+14381: Process started
+
+14381: There are 879 reviews for current business Casa Romero
+14394: Process started
+
+14394: There are 1229 reviews for current business Dante
+14394: Process started
+
+14394: There are 156 reviews for current business The Oyster Club
+14394: Process started
+
+14394: There are 400 reviews for current business Ristorante Fiore
+14389: Process started
+
+14389: There are 0 reviews for current business "Gyu-Kaku - Cambridge
+
+14389: Writing similarity scores to file for business "Gyu-Kaku - Cambridge
+14389: It took 00:00:11 for 0 reviews
+14389: Process started
+
+14389: There are 1640 reviews for current business Menton
+14395: Process started
+
+14395: There are 202 reviews for current business M.J. O'Connors Park Plaza
+14395: Process started
+
+14395: There are 1418 reviews for current business Empire
+14395: Process started
+
+14395: There are 212 reviews for current business La Motta's Italian Specialties
+14392: Process started
+
+14392: There are 123 reviews for current business Ruth's Chris Steak House - Somerville
+14392: Process started
+
+14392: There are 340 reviews for current business Tony & Elaine's
+14392: Process started
+
+14392: There are 1226 reviews for current business Legal on the Mystic
+14392: Process started
+
+14392: There are 324 reviews for current business Bogie's Place
+14386: Process started
+
+14386: There are 19 reviews for current business Rogue Boston
+14386: Process started
+
+14386: There are 360 reviews for current business Sportello
+14386: Process started
+
+14386: There are 279 reviews for current business Figs by Todd English - Beacon Hill
+14386: Process started
+
+14386: There are 18 reviews for current business Cusser's
+14386: Process started
+
+14386: There are 69 reviews for current business Clerys
+14386: Process started
+
+14386: There are 724 reviews for current business 75 on Liberty Wharf Bar & Grill
+14386: Process started
+
+14386: There are 760 reviews for current business Osaka Japanese Sushi and Steakhouse
+14390: Process started
+
+14390: There are 363 reviews for current business Southern Proper
+14390: Process started
+
+14390: There are 316 reviews for current business Pink Taco - Boston
+14390: Process started
+
+14390: There are 155 reviews for current business Koy
+14390: Process started
+
+14390: There are 1431 reviews for current business Mastro's Ocean Club - Boston
+14387: Process started
+
+14387: There are 22 reviews for current business Stephanie's On Newbury
+14387: Process started
+
+14387: There are 2145 reviews for current business Teatro- Boston
+14393: Process started
+
+14393: There are 2566 reviews for current business Ostra
+14382: Process started
+
+14382: There are 512 reviews for current business Bronwyn
+14382: Process started
+
+14382: There are 412 reviews for current business Trade
+14382: Process started
+
+14382: There are 2 reviews for current business Drink
+14382: Process started
+
+14382: There are 1646 reviews for current business Parker's Restaurant - Omni Parker House
+14388: Process started
+
+14388: There are 3749 reviews for current business La Voile
+14380: Process started
+
+14380: There are 1373 reviews for current business Durgin Park
+14380: Process started
+
+14380: There are 0 reviews for current business "Bambara presents Capalbo?€?s
+
+14380: Writing similarity scores to file for business "Bambara presents Capalbo?€?s
+14380: It took 00:00:11 for 0 reviews
+14380: Process started
+
+14380: There are 28 reviews for current business Atlantico
+14380: Process started
+
+14380: There are 2327 reviews for current business Fleming's Steakhouse - Boston
+14384: Process started
+
+14384: There are 1635 reviews for current business Ocean Prime - Boston Seaport
+14384: Process started
+
+14384: There are 5874 reviews for current business Beehive
+14391: Process started
+
+14391: There are 0 reviews for current business restaurant
+
+14391: Writing similarity scores to file for business restaurant
+14391: It took 00:00:11 for 0 reviews
+14391: Process started
+
+14391: There are 854 reviews for current business Bastille Kitchen
+14391: Process started
+
+14391: There are 313 reviews for current business Scollay Square
+14391: Process started
+
+14391: There are 3814 reviews for current business Harvest
+14385: Process started
+
+14385: There are 6357 reviews for current business Union Oyster House
+multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 121, in worker
+    result = (True, func(*args, **kwds))
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 44, in mapstar
+    return list(map(*args))
+  File "open_table.py", line 580, in start_calculations
+    f[c_review] = final_output_c[id][c_review]
+IndexError: list index out of range
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "open_table.py", line 671, in <module>
+    results = pool.map(start_calculations, businesses) 
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 268, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+  File "/home/vo.ma/.conda/envs/yelp/lib/python3.7/multiprocessing/pool.py", line 657, in get
+    raise self._value
+IndexError: list index out of range
