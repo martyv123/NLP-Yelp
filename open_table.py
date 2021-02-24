@@ -587,13 +587,14 @@ def start_calculations(businesses):
         print('\n' + str(pid) + ': Writing similarity scores to file for business ' + current_business)
         print(str(pid) + ': It took ' + str(total_time) + ' for ' + str(len(REVIEW_SET)) + ' reviews')
         with open (args.calculations_file, 'a', encoding='utf-8', newline='') as file:
-            writer = csv.DictWriter(file, final_to_write[0].keys())
-            if START:
-                writer.writeheader()
-                START = False
-            for row in final_to_write:
-                writer.writerow(row)
-            print('\n')
+            if final_to_write:
+                writer = csv.DictWriter(file, final_to_write[0].keys())
+                if START:
+                    writer.writeheader()
+                    START = False
+                for row in final_to_write:
+                    writer.writerow(row)
+                print('\n')
 
         REVIEWED += 1
         print('\n' + str(pid) + ' has now reviewed ' + str(REVIEWED) + ' businesses')
