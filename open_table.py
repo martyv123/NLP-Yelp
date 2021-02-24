@@ -566,13 +566,13 @@ def start_calculations(businesses):
         if final_output_b and final_output_c:
             for id, f in enumerate(final_to_write):
                 for i in range(10):
-                    if i < len(final_output_b):
+                    if id < len(final_output_b):
                         b_score = "score_" + str(i+1) + "b"
                         b_review = "reviewed_against_" + str(i+1) + "b"
                         f[b_review] = final_output_b[id][b_review]
                         f[b_score] = final_output_b[id][b_score]
                     
-                    if i < len(final_output_c):
+                    if id < len(final_output_c):
                         c_score = "score_" + str(i+1) + "c"
                         c_review = "reviewed_against_" + str(i+1) + "c"
                         f[c_review] = final_output_c[id][c_review]
