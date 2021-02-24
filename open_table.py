@@ -562,23 +562,20 @@ def start_calculations(businesses):
 
         final_to_write = copy.deepcopy(final_output_a)
 
-        # Append the b criteria scores
-        for id, f in enumerate(final_to_write):
-            for i in range(10):
-                b_score = "score_" + str(i+1) + "b"
-                b_review = "reviewed_against_" + str(i+1) + "b"
-                    
-                f[b_review] = final_output_b[id][b_review]
-                f[b_score] = final_output_b[id][b_score]
+        # Append the b & c criteria scores
+        if final_output_b and final_output_c:
+            for id, f in enumerate(final_to_write):
+                for i in range(10):
+                    b_score = "score_" + str(i+1) + "b"
+                    b_review = "reviewed_against_" + str(i+1) + "b"
+                    c_score = "score_" + str(i+1) + "c"
+                    c_review = "reviewed_against_" + str(i+1) + "c"
+                        
+                    f[b_review] = final_output_b[id][b_review]
+                    f[b_score] = final_output_b[id][b_score]
+                    f[c_review] = final_output_c[id][c_review]
+                    f[c_score] = final_output_c[id][c_score]
 
-        # Append the c criteria scores
-        for id, f in enumerate(final_to_write):
-            for i in range(10):
-                c_score = "score_" + str(i+1) + "c"
-                c_review = "reviewed_against_" + str(i+1) + "c"
-
-                f[c_review] = final_output_c[id][c_review]
-                f[c_score] = final_output_c[id][c_score]
 
         end = timer()
 
